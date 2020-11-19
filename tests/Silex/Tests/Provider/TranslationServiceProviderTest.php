@@ -152,6 +152,7 @@ class TranslationServiceProviderTest extends TestCase
                    $app['translator']->getLocale();
         });
         $response = $app->handle(Request::create('/fr'));
+//        dd($response, $app['translator']);
         $this->assertEquals('fresfr', $response->getContent());
 
         $app = $this->getPreparedApp();

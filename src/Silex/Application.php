@@ -43,7 +43,7 @@ use Symfony\Component\HttpKernel\TerminableInterface;
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Application extends Container implements HttpKernelInterface, TerminableInterface, ContainerInterface
+class Application extends Container implements HttpKernelInterface, TerminableInterface
 {
     const VERSION = '3.0.0-DEV';
 
@@ -527,8 +527,4 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
         $this['kernel']->terminate($request, $response);
     }
 
-    public function has($id)
-    {
-        return $this->offsetExists($id);
-    }
 }

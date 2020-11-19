@@ -16,12 +16,15 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use ReflectionClass;
 use Symfony\Component\HttpKernel\EventListener\LocaleAwareListener;
+use Symfony\Component\HttpKernel\EventListener\LocaleListener;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Formatter\MessageFormatter;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Loader\XliffFileLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Silex\Api\EventListenerProviderInterface;
+use Symfony\Component\Form\Form;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Symfony Translation component Provider.
@@ -43,7 +46,7 @@ class TranslationServiceProvider implements ServiceProviderInterface, EventListe
             $translator->addLoader('xliff', new XliffFileLoader());
 
             if (isset($app['validator'])) {
-                $r = new ReflectionClass('Symfony\Component\Validator\Validation');
+                $r = new ReflectionClass(Validation::class);
                 $file = dirname($r->getFilename()) . '/Resources/translations/validators.' . $app['locale'] . '.xlf';
                 if (file_exists($file)) {
                     $translator->addResource('xliff', $file, $app['locale'], 'validators');
@@ -51,7 +54,7 @@ class TranslationServiceProvider implements ServiceProviderInterface, EventListe
             }
 
             if (isset($app['form.factory'])) {
-                $r = new ReflectionClass('Symfony\Component\Form\Form');
+                $r = new ReflectionClass(Form::class);
                 $file = dirname($r->getFilename()) . '/Resources/translations/validators.' . $app['locale'] . '.xlf';
                 if (file_exists($file)) {
                     $translator->addResource('xliff', $file, $app['locale'], 'validators');
@@ -74,7 +77,7 @@ class TranslationServiceProvider implements ServiceProviderInterface, EventListe
 
         if (isset($app['request_stack'])) {
             $app['translator.listener'] = function ($app) {
-                return new LocaleAwareListener([], $app['request_stack']);
+                return new LocaleAwareListener([$app['translator']], $app['request_stack']);
             };
         }
 

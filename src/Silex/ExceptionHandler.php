@@ -34,7 +34,7 @@ class ExceptionHandler implements EventSubscriberInterface
 
     public function onSilexError(ExceptionEvent $event)
     {
-        $renderer = new HtmlErrorRenderer();
+        $renderer = new HtmlErrorRenderer($this->debug);
 
         $exception = $event->getThrowable();
         if (!$exception instanceof FlattenException) {

@@ -88,7 +88,7 @@ class ExceptionListenerWrapper
             $event->setResponse($response);
         } else {
             $viewEvent = new ViewEvent($this->app['kernel'], $event->getRequest(), $event->getRequestType(), $response);
-            $this->app['dispatcher']->dispatch($viewEvent);
+            $this->app['dispatcher']->dispatch($viewEvent, KernelEvents::VIEW);
 
             if ($viewEvent->hasResponse()) {
                 $event->setResponse($viewEvent->getResponse());

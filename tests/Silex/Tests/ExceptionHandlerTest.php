@@ -41,7 +41,7 @@ class ExceptionHandlerTest extends TestCase
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
-        self::assertContains('Whoops, looks like something went wrong.', $response->getContent());
+        self::assertStringContainsString('Oops! An Error Occurred', $response->getContent());
         self::assertEquals(500, $response->getStatusCode());
     }
 
@@ -60,7 +60,7 @@ class ExceptionHandlerTest extends TestCase
         $request = Request::create('/foo');
         $response = $app->handle($request);
 
-        self::assertContains('foo exception', $response->getContent());
+        self::assertStringContainsString('foo exception', $response->getContent());
         self::assertEquals(500, $response->getStatusCode());
     }
 
@@ -71,7 +71,9 @@ class ExceptionHandlerTest extends TestCase
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
-        self::assertContains('Sorry, the page you are looking for could not be found.', $response->getContent());
+        // @fixme
+        // self::assertContains('Sorry, the page you are looking for could not be found.', $response->getContent());
+        self::assertStringContainsString('The server returned a "404 Not Found".', $response->getContent());
         self::assertEquals(404, $response->getStatusCode());
     }
 
@@ -82,7 +84,7 @@ class ExceptionHandlerTest extends TestCase
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
-        self::assertContains('No route found for "GET /foo"', html_entity_decode($response->getContent()));
+        self::assertStringContainsString('No route found for "GET /foo"', html_entity_decode($response->getContent()));
         self::assertEquals(404, $response->getStatusCode());
     }
 
@@ -95,7 +97,7 @@ class ExceptionHandlerTest extends TestCase
 
         $request = Request::create('/foo', 'POST');
         $response = $app->handle($request);
-        self::assertContains('Whoops, looks like something went wrong.', $response->getContent());
+        self::assertStringContainsString('Oops! An Error Occurred', $response->getContent());
         self::assertEquals(405, $response->getStatusCode());
         self::assertEquals('GET', $response->headers->get('Allow'));
     }
@@ -109,7 +111,7 @@ class ExceptionHandlerTest extends TestCase
 
         $request = Request::create('/foo', 'POST');
         $response = $app->handle($request);
-        self::assertContains('No route found for "POST /foo": Method Not Allowed (Allow: GET)', html_entity_decode($response->getContent()));
+        self::assertStringContainsString('No route found for "POST /foo": Method Not Allowed (Allow: GET)', html_entity_decode($response->getContent()));
         self::assertEquals(405, $response->getStatusCode());
         self::assertEquals('GET', $response->headers->get('Allow'));
     }
@@ -336,7 +338,7 @@ class ExceptionHandlerTest extends TestCase
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
-        self::assertContains('Caught Exception', $response->getContent());
+        self::assertStringContainsString('Caught Exception', $response->getContent());
     }
 
     public function testExceptionHandlerWithSpecifiedException()
@@ -365,7 +367,7 @@ class ExceptionHandlerTest extends TestCase
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
-        self::assertContains('Caught LogicException', $response->getContent());
+        self::assertStringContainsString('Caught LogicException', $response->getContent());
     }
 
     public function testExceptionHandlerWithSpecifiedExceptionInReverseOrder()
@@ -396,7 +398,7 @@ class ExceptionHandlerTest extends TestCase
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
-        self::assertContains('Caught Exception', $response->getContent());
+        self::assertStringContainsString('Caught Exception', $response->getContent());
     }
 
     public function testExceptionHandlerWithArrayStyleCallback()
@@ -413,7 +415,7 @@ class ExceptionHandlerTest extends TestCase
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
-        self::assertContains('Caught Exception', $response->getContent());
+        self::assertStringContainsString('Caught Exception', $response->getContent());
     }
 
     protected function checkRouteResponse($app, $path, $expectedContent, $method = 'get', $message = '')

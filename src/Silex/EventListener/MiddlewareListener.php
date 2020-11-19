@@ -12,13 +12,12 @@
 namespace Silex\EventListener;
 
 use RuntimeException;
-use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Silex\Application;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Silex\Application;
 
 /**
  * Manages the route middlewares.
@@ -77,7 +76,7 @@ class MiddlewareListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         $routeName = $request->attributes->get('_route');
-        if ($routeName && !$route = $this->app['routes']->get($routeName)) {
+        if (!$route = $this->app['routes']->get($routeName ?? '')) {
             return;
         }
 

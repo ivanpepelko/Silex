@@ -24,6 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * LogListener.
@@ -36,7 +37,7 @@ class LogListenerTest extends TestCase
     {
         $logger = $this->getMockBuilder(LoggerInterface::class)->getMock();
         $logger
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('log')
             ->with(LogLevel::DEBUG, '> GET /foo');
 
@@ -46,16 +47,16 @@ class LogListenerTest extends TestCase
         /** @var HttpKernelInterface $kernel */
         $kernel = $this->getMockBuilder(HttpKernelInterface::class)->getMock();
 
-        $dispatcher->dispatch(new RequestEvent($kernel, Request::create('/subrequest'), HttpKernelInterface::SUB_REQUEST));
+        $dispatcher->dispatch(new RequestEvent($kernel, Request::create('/subrequest'), HttpKernelInterface::SUB_REQUEST), KernelEvents::REQUEST);
 
-        $dispatcher->dispatch(new RequestEvent($kernel, Request::create('/foo'), HttpKernelInterface::MASTER_REQUEST));
+        $dispatcher->dispatch(new RequestEvent($kernel, Request::create('/foo'), HttpKernelInterface::MASTER_REQUEST), KernelEvents::REQUEST);
     }
 
     public function testResponseListener()
     {
         $logger = $this->getMockBuilder(LoggerInterface::class)->getMock();
         $logger
-            ->expects($this->once())
+            ->expects(self::once())
             ->method('log')
             ->with(LogLevel::DEBUG, '< 301');
 
@@ -64,20 +65,26 @@ class LogListenerTest extends TestCase
 
         $kernel = $this->getMockBuilder(HttpKernelInterface::class)->getMock();
 
-        $dispatcher->dispatch(new ResponseEvent($kernel, Request::create('/foo'), HttpKernelInterface::SUB_REQUEST, new Response('subrequest', 200)));
+        $dispatcher->dispatch(
+            new ResponseEvent($kernel, Request::create('/foo'), HttpKernelInterface::SUB_REQUEST, new Response('subrequest', 200)),
+            KernelEvents::RESPONSE
+        );
 
-        $dispatcher->dispatch(new ResponseEvent($kernel, Request::create('/foo'), HttpKernelInterface::MASTER_REQUEST, new Response('bar', 301)));
+        $dispatcher->dispatch(
+            new ResponseEvent($kernel, Request::create('/foo'), HttpKernelInterface::MASTER_REQUEST, new Response('bar', 301)),
+            KernelEvents::RESPONSE
+        );
     }
 
     public function testExceptionListener()
     {
         $logger = $this->getMockBuilder(LoggerInterface::class)->getMock();
         $logger
-            ->expects($this->at(0))
+            ->expects(self::at(0))
             ->method('log')
-            ->with(LogLevel::CRITICAL, 'RuntimeException: Fatal error (uncaught exception) at ' . __FILE__ . ' line ' . (__LINE__ + 13));
+            ->with(LogLevel::CRITICAL, 'RuntimeException: Fatal error (uncaught exception) at ' . __FILE__ . ' line ' . (__LINE__ + 14));
         $logger
-            ->expects($this->at(1))
+            ->expects(self::at(1))
             ->method('log')
             ->with(
                 LogLevel::ERROR,
@@ -89,7 +96,13 @@ class LogListenerTest extends TestCase
 
         $kernel = $this->getMockBuilder(HttpKernelInterface::class)->getMock();
 
-        $dispatcher->dispatch(new ExceptionEvent($kernel, Request::create('/foo'), HttpKernelInterface::SUB_REQUEST, new RuntimeException('Fatal error')));
-        $dispatcher->dispatch(new ExceptionEvent($kernel, Request::create('/foo'), HttpKernelInterface::SUB_REQUEST, new HttpException(400, 'Http error')));
+        $dispatcher->dispatch(
+            new ExceptionEvent($kernel, Request::create('/foo'), HttpKernelInterface::SUB_REQUEST, new RuntimeException('Fatal error')),
+            KernelEvents::EXCEPTION
+        );
+        $dispatcher->dispatch(
+            new ExceptionEvent($kernel, Request::create('/foo'), HttpKernelInterface::SUB_REQUEST, new HttpException(400, 'Http error')),
+            KernelEvents::EXCEPTION
+        );
     }
 }

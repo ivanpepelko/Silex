@@ -11,19 +11,21 @@
 
 namespace Silex\Provider;
 
+use InvalidArgumentException;
+use Monolog\ErrorHandler;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler;
+use Monolog\Logger;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Logger;
-use Monolog\Handler;
-use Monolog\ErrorHandler;
-use Silex\Application;
 use Silex\Api\BootableProviderInterface;
 use Silex\Api\EventListenerProviderInterface;
+use Silex\Application;
+use Silex\EventListener\LogListener;
 use Symfony\Bridge\Monolog\Handler\FingersCrossed\NotFoundActivationStrategy;
+use Symfony\Bridge\Monolog\Logger as BridgeLogger;
 use Symfony\Bridge\Monolog\Processor\DebugProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Silex\EventListener\LogListener;
 
 /**
  * Monolog Provider.
@@ -38,7 +40,7 @@ class MonologServiceProvider implements ServiceProviderInterface, BootableProvid
             return $app['monolog'];
         };
 
-        if ($bridge = class_exists('Symfony\Bridge\Monolog\Logger')) {
+        if ($bridge = class_exists(BridgeLogger::class)) {
             if (isset($app['request_stack'])) {
                 $app['monolog.not_found_activation_strategy'] = function () use ($app) {
                     $level = MonologServiceProvider::translateLevel($app['monolog.level']);
@@ -48,7 +50,7 @@ class MonologServiceProvider implements ServiceProviderInterface, BootableProvid
             }
         }
 
-        $app['monolog.logger.class'] = $bridge ? 'Symfony\Bridge\Monolog\Logger' : 'Monolog\Logger';
+        $app['monolog.logger.class'] = $bridge ? BridgeLogger::class : Logger::class;
 
         $app['monolog'] = function ($app) use ($bridge) {
             $log = new $app['monolog.logger.class']($app['monolog.name']);
@@ -109,20 +111,6 @@ class MonologServiceProvider implements ServiceProviderInterface, BootableProvid
         };
     }
 
-    public function boot(Application $app)
-    {
-        if ($app['monolog.use_error_handler']) {
-            ErrorHandler::register($app['monolog']);
-        }
-    }
-
-    public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
-    {
-        if (isset($app['monolog.listener'])) {
-            $dispatcher->addSubscriber($app['monolog.listener']);
-        }
-    }
-
     public static function translateLevel($name)
     {
         // level is already translated to logger constant, return as-is
@@ -140,9 +128,23 @@ class MonologServiceProvider implements ServiceProviderInterface, BootableProvid
         $upper = strtoupper($name);
 
         if (!isset($levels[$upper])) {
-            throw new \InvalidArgumentException("Provided logging level '$name' does not exist. Must be a valid monolog logging level.");
+            throw new InvalidArgumentException("Provided logging level '$name' does not exist. Must be a valid monolog logging level.");
         }
 
         return $levels[$upper];
+    }
+
+    public function boot(Application $app)
+    {
+        if ($app['monolog.use_error_handler']) {
+            ErrorHandler::register($app['monolog']);
+        }
+    }
+
+    public function subscribe(Container $app, EventDispatcherInterface $dispatcher)
+    {
+        if (isset($app['monolog.listener'])) {
+            $dispatcher->addSubscriber($app['monolog.listener']);
+        }
     }
 }

@@ -186,12 +186,10 @@ class MonologServiceProviderTest extends TestCase
         self::assertSame(Logger::INFO, $app['monolog.handler']->getLevel());
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     * @expectedExceptionMessage Provided logging level 'foo' does not exist. Must be a valid monolog logging level.
-     */
     public function testNonExistentStringErrorLevel()
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Level "foo" is not defined, use one of: 100, 200, 250, 300, 400, 500, 550, 600');
         $app = $this->getApplication();
         $app['monolog.level'] = 'foo';
 

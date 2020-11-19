@@ -22,6 +22,7 @@ use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Silex\Route;
 
 /**
  * Symfony Routing component Provider.
@@ -32,7 +33,7 @@ class RoutingServiceProvider implements ServiceProviderInterface, EventListenerP
 {
     public function register(Container $app)
     {
-        $app['route_class'] = 'Silex\\Route';
+        $app['route_class'] = Route::class;
 
         $app['route_factory'] = $app->factory(function ($app) {
             return new $app['route_class']();
@@ -56,8 +57,8 @@ class RoutingServiceProvider implements ServiceProviderInterface, EventListenerP
         $app['request_context'] = function ($app) {
             $context = new RequestContext();
 
-            $context->setHttpPort(isset($app['request.http_port']) ? $app['request.http_port'] : 80);
-            $context->setHttpsPort(isset($app['request.https_port']) ? $app['request.https_port'] : 443);
+            $context->setHttpPort($app['request.http_port'] ?? 80);
+            $context->setHttpsPort($app['request.https_port'] ?? 443);
 
             return $context;
         };
@@ -76,7 +77,7 @@ class RoutingServiceProvider implements ServiceProviderInterface, EventListenerP
                 return $app['request_matcher'];
             });
 
-            return new RouterListener($urlMatcher, $app['request_stack'], $app['request_context'], $app['logger'], null, isset($app['debug']) ? $app['debug'] : false);
+            return new RouterListener($urlMatcher, $app['request_stack'], $app['request_context'], $app['logger'], null, $app['debug'] ?? false);
         };
     }
 
