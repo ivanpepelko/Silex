@@ -27,6 +27,8 @@ use Symfony\Bridge\Monolog\Logger as BridgeLogger;
 use Symfony\Bridge\Monolog\Processor\DebugProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+use function is_int;
+
 /**
  * Monolog Provider.
  *
@@ -43,7 +45,7 @@ class MonologServiceProvider implements ServiceProviderInterface, BootableProvid
         if ($bridge = class_exists(BridgeLogger::class)) {
             if (isset($app['request_stack'])) {
                 $app['monolog.not_found_activation_strategy'] = function () use ($app) {
-                    $level = MonologServiceProvider::translateLevel($app['monolog.level']);
+                    $level = self::translateLevel($app['monolog.level']);
 
                     return new NotFoundActivationStrategy($app['request_stack'], ['^/'], $level);
                 };
@@ -74,7 +76,7 @@ class MonologServiceProvider implements ServiceProviderInterface, BootableProvid
         };
 
         $app['monolog.handler'] = $defaultHandler = function () use ($app) {
-            $level = MonologServiceProvider::translateLevel($app['monolog.level']);
+            $level = self::translateLevel($app['monolog.level']);
 
             $handler = new Handler\StreamHandler($app['monolog.logfile'], $level, $app['monolog.bubble'], $app['monolog.permission']);
             $handler->setFormatter($app['monolog.formatter']);

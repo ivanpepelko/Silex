@@ -11,8 +11,8 @@
 
 namespace Silex\Api;
 
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Pimple\Container;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Interface for event listener providers.

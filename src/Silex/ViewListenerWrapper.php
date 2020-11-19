@@ -16,8 +16,11 @@ use ReflectionFunction;
 use ReflectionMethod;
 use ReflectionObject;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
+
+use function is_array;
+use function is_callable;
+use function is_object;
 
 /**
  * Wraps view listeners.

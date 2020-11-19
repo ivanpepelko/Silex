@@ -17,6 +17,8 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouteCollection;
 
+use function call_user_func;
+
 /**
  * Handles converters.
  *

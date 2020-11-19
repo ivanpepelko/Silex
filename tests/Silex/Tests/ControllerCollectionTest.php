@@ -178,7 +178,7 @@ class ControllerCollectionTest extends TestCase
     public function testMountCallableException()
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage("The \"mount\" method takes either a \"ControllerCollection\" instance or callable.");
+        $this->expectExceptionMessage('The "mount" method takes either a "ControllerCollection" instance or callable.');
         $controllers = new ControllerCollection(new Route());
         $controllers->mount('/prefix', '');
     }

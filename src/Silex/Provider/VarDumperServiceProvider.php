@@ -13,11 +13,11 @@ namespace Silex\Provider;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Silex\Application;
 use Silex\Api\BootableProviderInterface;
-use Symfony\Component\VarDumper\VarDumper;
+use Silex\Application;
 use Symfony\Component\VarDumper\Cloner\VarCloner;
 use Symfony\Component\VarDumper\Dumper\CliDumper;
+use Symfony\Component\VarDumper\VarDumper;
 
 /**
  * Symfony Var Dumper component Provider.

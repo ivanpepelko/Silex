@@ -13,8 +13,8 @@ namespace Silex\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Silex\Application;
-use Symfony\Component\HttpFoundation\Request;
 use Silex\Provider\ServiceControllerServiceProvider;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Callback as services test cases.
@@ -31,7 +31,7 @@ class CallbackServicesTest extends TestCase
         $app->register(new ServiceControllerServiceProvider());
 
         $app['service'] = function () {
-            return new CallbackServicesTest();
+            return new self();
         };
 
         $app->before('service:beforeApp');

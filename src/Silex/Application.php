@@ -14,7 +14,6 @@ namespace Silex;
 use LogicException;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Silex\Api\BootableProviderInterface;
 use Silex\Api\ControllerProviderInterface;
@@ -37,6 +36,12 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\TerminableInterface;
+
+use function call_user_func;
+use function get_class;
+use function gettype;
+use function is_callable;
+use function is_object;
 
 /**
  * The Silex framework class.
@@ -439,7 +444,7 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
      * @param SplFileInfo|string $file               The file to stream
      * @param int                $status             The response status code
      * @param array              $headers            An array of response headers
-     * @param null|string        $contentDisposition The type of Content-Disposition to set automatically with the filename
+     * @param string|null        $contentDisposition The type of Content-Disposition to set automatically with the filename
      *
      * @return BinaryFileResponse
      */
@@ -526,5 +531,4 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
     {
         $this['kernel']->terminate($request, $response);
     }
-
 }

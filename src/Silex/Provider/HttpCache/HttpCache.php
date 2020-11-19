@@ -11,8 +11,8 @@
 
 namespace Silex\Provider\HttpCache;
 
-use Symfony\Component\HttpKernel\HttpCache\HttpCache as BaseHttpCache;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpCache\HttpCache as BaseHttpCache;
 
 /**
  * HTTP Cache extension to allow using the run() shortcut.

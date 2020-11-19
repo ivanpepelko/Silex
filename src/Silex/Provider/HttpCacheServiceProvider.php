@@ -13,12 +13,12 @@ namespace Silex\Provider;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Silex\Provider\HttpCache\HttpCache;
 use Silex\Api\EventListenerProviderInterface;
+use Silex\Provider\HttpCache\HttpCache;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpKernel\EventListener\SurrogateListener;
 use Symfony\Component\HttpKernel\HttpCache\Esi;
 use Symfony\Component\HttpKernel\HttpCache\Store;
-use Symfony\Component\HttpKernel\EventListener\SurrogateListener;
 
 /**
  * Symfony HttpKernel component Provider for HTTP cache.

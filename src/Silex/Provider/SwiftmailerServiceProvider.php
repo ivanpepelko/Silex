@@ -14,10 +14,23 @@ namespace Silex\Provider;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Silex\Api\EventListenerProviderInterface;
+use Swift_Events_SimpleEventDispatcher;
+use Swift_Mailer;
+use Swift_MemorySpool;
+use Swift_Plugins_ImpersonatePlugin;
+use Swift_Plugins_RedirectingPlugin;
+use Swift_StreamFilters_StringReplacementFilterFactory;
+use Swift_Transport_Esmtp_Auth_CramMd5Authenticator;
+use Swift_Transport_Esmtp_Auth_LoginAuthenticator;
+use Swift_Transport_Esmtp_Auth_PlainAuthenticator;
+use Swift_Transport_Esmtp_AuthHandler;
+use Swift_Transport_EsmtpTransport;
+use Swift_Transport_SpoolTransport;
+use Swift_Transport_StreamBuffer;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\PostResponseEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * Swiftmailer Provider.
@@ -37,19 +50,19 @@ class SwiftmailerServiceProvider implements ServiceProviderInterface, EventListe
             $app['mailer.initialized'] = true;
             $transport = $app['swiftmailer.use_spool'] ? $app['swiftmailer.spooltransport'] : $app['swiftmailer.transport'];
 
-            return new \Swift_Mailer($transport);
+            return new Swift_Mailer($transport);
         };
 
         $app['swiftmailer.spooltransport'] = function ($app) {
-            return new \Swift_Transport_SpoolTransport($app['swiftmailer.transport.eventdispatcher'], $app['swiftmailer.spool']);
+            return new Swift_Transport_SpoolTransport($app['swiftmailer.transport.eventdispatcher'], $app['swiftmailer.spool']);
         };
 
         $app['swiftmailer.spool'] = function ($app) {
-            return new \Swift_MemorySpool();
+            return new Swift_MemorySpool();
         };
 
         $app['swiftmailer.transport'] = function ($app) {
-            $transport = new \Swift_Transport_EsmtpTransport(
+            $transport = new Swift_Transport_EsmtpTransport(
                 $app['swiftmailer.transport.buffer'],
                 [$app['swiftmailer.transport.authhandler']],
                 $app['swiftmailer.transport.eventdispatcher']
@@ -77,28 +90,30 @@ class SwiftmailerServiceProvider implements ServiceProviderInterface, EventListe
         };
 
         $app['swiftmailer.transport.buffer'] = function () {
-            return new \Swift_Transport_StreamBuffer(new \Swift_StreamFilters_StringReplacementFilterFactory());
+            return new Swift_Transport_StreamBuffer(new Swift_StreamFilters_StringReplacementFilterFactory());
         };
 
         $app['swiftmailer.transport.authhandler'] = function () {
-            return new \Swift_Transport_Esmtp_AuthHandler([
-                new \Swift_Transport_Esmtp_Auth_CramMd5Authenticator(),
-                new \Swift_Transport_Esmtp_Auth_LoginAuthenticator(),
-                new \Swift_Transport_Esmtp_Auth_PlainAuthenticator(),
-            ]);
+            return new Swift_Transport_Esmtp_AuthHandler(
+                [
+                    new Swift_Transport_Esmtp_Auth_CramMd5Authenticator(),
+                    new Swift_Transport_Esmtp_Auth_LoginAuthenticator(),
+                    new Swift_Transport_Esmtp_Auth_PlainAuthenticator(),
+                ]
+            );
         };
 
         $app['swiftmailer.transport.eventdispatcher'] = function ($app) {
-            $dispatcher = new \Swift_Events_SimpleEventDispatcher();
+            $dispatcher = new Swift_Events_SimpleEventDispatcher();
 
             $plugins = $app['swiftmailer.plugins'];
 
             if (null !== $app['swiftmailer.sender_address']) {
-                $plugins[] = new \Swift_Plugins_ImpersonatePlugin($app['swiftmailer.sender_address']);
+                $plugins[] = new Swift_Plugins_ImpersonatePlugin($app['swiftmailer.sender_address']);
             }
 
             if (!empty($app['swiftmailer.delivery_addresses'])) {
-                $plugins[] = new \Swift_Plugins_RedirectingPlugin(
+                $plugins[] = new Swift_Plugins_RedirectingPlugin(
                     $app['swiftmailer.delivery_addresses'],
                     $app['swiftmailer.delivery_whitelist']
                 );
@@ -126,7 +141,7 @@ class SwiftmailerServiceProvider implements ServiceProviderInterface, EventListe
         $onTerminate = function ($event) use ($app) {
             // To speed things up (by avoiding Swift Mailer initialization), flush
             // messages only if our mailer has been created (potentially used)
-            if ($app['mailer.initialized'] && $app['swiftmailer.use_spool'] && $app['swiftmailer.spooltransport'] instanceof \Swift_Transport_SpoolTransport) {
+            if ($app['mailer.initialized'] && $app['swiftmailer.use_spool'] && $app['swiftmailer.spooltransport'] instanceof Swift_Transport_SpoolTransport) {
                 $app['swiftmailer.spooltransport']->getSpool()->flushQueue($app['swiftmailer.transport']);
             }
         };

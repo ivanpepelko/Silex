@@ -13,14 +13,17 @@ namespace Silex\Tests\Provider;
 
 use LogicException;
 use Silex\Application;
-use Silex\WebTestCase;
 use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\SessionServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
+use Silex\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\HttpKernelBrowser as Client;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\HttpKernel\HttpKernelBrowser as Client;
-use Symfony\Component\HttpFoundation\Request;
+
+use function call_user_func;
+use function is_object;
 
 /**
  * SecurityServiceProvider.

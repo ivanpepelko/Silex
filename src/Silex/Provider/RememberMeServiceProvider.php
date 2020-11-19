@@ -11,14 +11,15 @@
 
 namespace Silex\Provider;
 
+use LogicException;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Silex\Api\EventListenerProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\RememberMeAuthenticationProvider;
 use Symfony\Component\Security\Http\Firewall\RememberMeListener;
-use Symfony\Component\Security\Http\RememberMe\TokenBasedRememberMeServices;
 use Symfony\Component\Security\Http\RememberMe\ResponseListener;
+use Symfony\Component\Security\Http\RememberMe\TokenBasedRememberMeServices;
 
 /**
  * Remember-me authentication for the SecurityServiceProvider.
@@ -31,7 +32,7 @@ class RememberMeServiceProvider implements ServiceProviderInterface, EventListen
     {
         $app['security.remember_me.response_listener'] = function ($app) {
             if (!isset($app['security.token_storage'])) {
-                throw new \LogicException('You must register the SecurityServiceProvider to use the RememberMeServiceProvider');
+                throw new LogicException('You must register the SecurityServiceProvider to use the RememberMeServiceProvider');
             }
 
             return new ResponseListener();
@@ -64,16 +65,19 @@ class RememberMeServiceProvider implements ServiceProviderInterface, EventListen
 
         $app['security.remember_me.service._proto'] = $app->protect(function ($providerKey, $options) use ($app) {
             return function () use ($providerKey, $options, $app) {
-                $options = array_replace([
-                    'name' => 'REMEMBERME',
-                    'lifetime' => 31536000,
-                    'path' => '/',
-                    'domain' => null,
-                    'secure' => false,
-                    'httponly' => true,
-                    'always_remember_me' => false,
-                    'remember_me_parameter' => '_remember_me',
-                ], $options);
+                $options = array_replace(
+                    [
+                        'name' => 'REMEMBERME',
+                        'lifetime' => 31536000,
+                        'path' => '/',
+                        'domain' => null,
+                        'secure' => false,
+                        'httponly' => true,
+                        'always_remember_me' => false,
+                        'remember_me_parameter' => '_remember_me',
+                    ],
+                    $options
+                );
 
                 return new TokenBasedRememberMeServices([$app['security.user_provider.'.$providerKey]], $options['key'], $providerKey, $options, $app['logger']);
             };

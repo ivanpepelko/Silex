@@ -14,24 +14,24 @@ namespace Silex\Tests\Provider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use Silex\Application;
-use Silex\Provider\FormServiceProvider;
 use Silex\Provider\CsrfServiceProvider;
+use Silex\Provider\FormServiceProvider;
 use Silex\Provider\SessionServiceProvider;
 use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormRegistry;
 use Symfony\Component\Form\FormTypeGuesserChain;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Translation\Exception\NotFoundResourceException;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Form\FormFactory;
-use Symfony\Component\Form\Form;
-use Symfony\Component\Form\FormRegistry;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 class FormServiceProviderTest extends TestCase
 {
@@ -97,7 +97,7 @@ class FormServiceProviderTest extends TestCase
     public function testNonExistentTypeService()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("Invalid form type. The silex service \"dummy\" does not exist.");
+        $this->expectExceptionMessage('Invalid form type. The silex service "dummy" does not exist.');
         $app = new Application();
 
         $app->register(new FormServiceProvider());
@@ -165,7 +165,7 @@ class FormServiceProviderTest extends TestCase
     public function testNonExistentTypeExtensionService()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("Invalid form type extension. The silex service \"dummy.form.type.extension\" does not exist.");
+        $this->expectExceptionMessage('Invalid form type extension. The silex service "dummy.form.type.extension" does not exist.');
         $app = new Application();
 
         $app->register(new FormServiceProvider());
@@ -221,7 +221,7 @@ class FormServiceProviderTest extends TestCase
     public function testNonExistentTypeGuesserService()
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("Invalid form type guesser. The silex service \"dummy.form.type.guesser\" does not exist.");
+        $this->expectExceptionMessage('Invalid form type guesser. The silex service "dummy.form.type.guesser" does not exist.');
         $app = new Application();
 
         $app->register(new FormServiceProvider());
@@ -350,7 +350,7 @@ class DummyFormTypeExtension extends AbstractTypeExtension
     {
         yield FileType::class;
     }
-    
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefined(['image_path']);

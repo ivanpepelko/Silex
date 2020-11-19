@@ -11,7 +11,11 @@
 
 namespace Silex;
 
+use BadMethodCallException;
 use Silex\Exception\ControllerFrozenException;
+
+use function call_user_func_array;
+use function get_class;
 
 /**
  * A wrapper for a controller, mapped to a route.
@@ -39,8 +43,6 @@ class Controller
 
     /**
      * Constructor.
-     *
-     * @param Route $route
      */
     public function __construct(Route $route)
     {
@@ -88,7 +90,7 @@ class Controller
     public function __call($method, $arguments)
     {
         if (!method_exists($this->route, $method)) {
-            throw new \BadMethodCallException(sprintf('Method "%s::%s" does not exist.', get_class($this->route), $method));
+            throw new BadMethodCallException(sprintf('Method "%s::%s" does not exist.', get_class($this->route), $method));
         }
 
         call_user_func_array([$this->route, $method], $arguments);

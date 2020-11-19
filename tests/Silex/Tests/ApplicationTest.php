@@ -14,22 +14,24 @@ namespace Silex\Tests;
 use ArrayObject;
 use Exception;
 use LogicException;
-use RuntimeException;
-use stdClass;
-use Symfony\Component\WebLink\GenericLinkProvider;
-use Symfony\Component\WebLink\Link;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Silex\Api\ControllerProviderInterface;
 use Silex\Application;
 use Silex\ControllerCollection;
-use Silex\Api\ControllerProviderInterface;
 use Silex\Route;
+use stdClass;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\WebLink\GenericLinkProvider;
+use Symfony\Component\WebLink\Link;
+use Symfony\Contracts\EventDispatcher\Event;
+
+use function get_class;
 
 /**
  * Application test cases.
@@ -498,7 +500,7 @@ class ApplicationTest extends TestCase
     {
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage(
-            "The \"mount\" method takes either a \"ControllerCollection\" instance, \"ControllerProviderInterface\" instance, or a callable."
+            'The "mount" method takes either a "ControllerCollection" instance, "ControllerProviderInterface" instance, or a callable.'
         );
         $app = new Application();
         $app->mount('/exception', null);
@@ -538,7 +540,7 @@ class ApplicationTest extends TestCase
     public function testGetRouteCollectionWithRouteWithoutController()
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage("The \"homepage\" route must have code to run when it matches.");
+        $this->expectExceptionMessage('The "homepage" route must have code to run when it matches.');
         $app = new Application();
         unset($app['exception_handler']);
         $app->match('/')->bind('homepage');
@@ -712,7 +714,7 @@ class FooController
 
     public function barSpecialAction(SpecialApplication $app, $name)
     {
-        return 'Hello '.$app->escape($name).' in '.get_class($app);
+        return 'Hello ' . $app->escape($name) . ' in ' . get_class($app);
     }
 }
 

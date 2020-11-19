@@ -15,15 +15,18 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Throwable;
+
+use function call_user_func;
+use function get_class;
 
 /**
  * Logs request, response, and exceptions.
@@ -51,8 +54,6 @@ class LogListener implements EventSubscriberInterface
 
     /**
      * Logs master requests on event KernelEvents::REQUEST.
-     *
-     * @param RequestEvent $event
      */
     public function onKernelRequest(RequestEvent $event)
     {
@@ -65,8 +66,6 @@ class LogListener implements EventSubscriberInterface
 
     /**
      * Logs master response on event KernelEvents::RESPONSE.
-     *
-     * @param ResponseEvent $event
      */
     public function onKernelResponse(ResponseEvent $event)
     {
@@ -79,8 +78,6 @@ class LogListener implements EventSubscriberInterface
 
     /**
      * Logs uncaught exceptions on event KernelEvents::EXCEPTION.
-     *
-     * @param ExceptionEvent $event
      */
     public function onKernelException(ExceptionEvent $event)
     {
@@ -89,8 +86,6 @@ class LogListener implements EventSubscriberInterface
 
     /**
      * Logs a request.
-     *
-     * @param Request $request
      */
     protected function logRequest(Request $request)
     {
@@ -99,8 +94,6 @@ class LogListener implements EventSubscriberInterface
 
     /**
      * Logs a response.
-     *
-     * @param Response $response
      */
     protected function logResponse(Response $response)
     {

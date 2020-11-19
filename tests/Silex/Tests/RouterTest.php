@@ -14,9 +14,9 @@ namespace Silex\Tests;
 use PHPUnit\Framework\TestCase;
 use Silex\Application;
 use Silex\Route;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**

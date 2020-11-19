@@ -14,10 +14,10 @@ namespace Silex\Provider;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Silex\Provider\Validator\ConstraintValidatorFactory;
-use Symfony\Component\Validator\Validator;
 use Symfony\Component\Validator\Mapping\Factory\LazyLoadingMetadataFactory;
 use Symfony\Component\Validator\Mapping\Loader\StaticMethodLoader;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator;
 
 /**
  * Symfony Validator component Provider.

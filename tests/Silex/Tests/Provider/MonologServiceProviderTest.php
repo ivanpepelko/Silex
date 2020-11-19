@@ -13,10 +13,10 @@ namespace Silex\Tests\Provider;
 
 use Exception;
 use InvalidArgumentException;
-use PHPUnit\Framework\TestCase;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Silex\Application;
 use Silex\Provider\MonologServiceProvider;

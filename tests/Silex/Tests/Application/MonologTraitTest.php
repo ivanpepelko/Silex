@@ -11,10 +11,10 @@
 
 namespace Silex\Tests\Application;
 
-use PHPUnit\Framework\TestCase;
-use Silex\Provider\MonologServiceProvider;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
+use Silex\Provider\MonologServiceProvider;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>

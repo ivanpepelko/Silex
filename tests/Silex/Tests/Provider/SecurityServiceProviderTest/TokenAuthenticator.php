@@ -11,13 +11,13 @@
 
 namespace Silex\Tests\Provider\SecurityServiceProviderTest;
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 /**
  * This class is used to test "guard" authentication with the SecurityServiceProvider.
@@ -30,7 +30,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
             return false;
         }
 
-        list($username, $secret) = explode(':', $token);
+        [$username, $secret] = explode(':', $token);
 
         return [
             'username' => $username,

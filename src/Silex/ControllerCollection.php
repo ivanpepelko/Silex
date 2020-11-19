@@ -11,8 +11,15 @@
 
 namespace Silex;
 
-use Symfony\Component\Routing\RouteCollection;
+use BadMethodCallException;
+use LogicException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RouteCollection;
+
+use function call_user_func;
+use function call_user_func_array;
+use function get_class;
+use function is_callable;
 
 /**
  * Builds Silex controllers.
@@ -52,7 +59,7 @@ class ControllerCollection
         $this->routesFactory = $routesFactory;
         $this->controllersFactory = $controllersFactory;
         $this->defaultController = function (Request $request) {
-            throw new \LogicException(sprintf('The "%s" route must have code to run when it matches.', $request->attributes->get('_route')));
+            throw new LogicException(sprintf('The "%s" route must have code to run when it matches.', $request->attributes->get('_route')));
         };
     }
 
@@ -62,7 +69,7 @@ class ControllerCollection
      * @param string                        $prefix      The route prefix
      * @param ControllerCollection|callable $controllers A ControllerCollection instance or a callable for defining routes
      *
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function mount($prefix, $controllers)
     {
@@ -72,7 +79,7 @@ class ControllerCollection
             call_user_func($controllers, $collection);
             $controllers = $collection;
         } elseif (!$controllers instanceof self) {
-            throw new \LogicException('The "mount" method takes either a "ControllerCollection" instance or callable.');
+            throw new LogicException('The "mount" method takes either a "ControllerCollection" instance or callable.');
         }
 
         $controllers->prefix = $prefix;
@@ -181,7 +188,7 @@ class ControllerCollection
     public function __call($method, $arguments)
     {
         if (!method_exists($this->defaultRoute, $method)) {
-            throw new \BadMethodCallException(sprintf('Method "%s::%s" does not exist.', get_class($this->defaultRoute), $method));
+            throw new BadMethodCallException(sprintf('Method "%s::%s" does not exist.', get_class($this->defaultRoute), $method));
         }
 
         call_user_func_array([$this->defaultRoute, $method], $arguments);

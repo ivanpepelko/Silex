@@ -16,6 +16,9 @@ use Symfony\Component\Form\Exception\InvalidArgumentException;
 use Symfony\Component\Form\FormExtensionInterface;
 use Symfony\Component\Form\FormTypeGuesserChain;
 
+use function get_class;
+use function is_object;
+
 class SilexFormExtension implements FormExtensionInterface
 {
     private $app;

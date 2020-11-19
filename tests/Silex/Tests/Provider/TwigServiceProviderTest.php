@@ -12,19 +12,19 @@
 namespace Silex\Tests\Provider;
 
 use DateTimeZone;
-use Symfony\Component\WebLink\Link;
 use PHPUnit\Framework\TestCase;
 use Silex\Application;
+use Silex\Provider\AssetServiceProvider;
 use Silex\Provider\CsrfServiceProvider;
 use Silex\Provider\FormServiceProvider;
 use Silex\Provider\TwigServiceProvider;
-use Silex\Provider\AssetServiceProvider;
+use Symfony\Bridge\Twig\Form\TwigRendererEngine;
+use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\WebLink\Link;
 use Twig\Environment;
 use Twig\Extension\CoreExtension;
 use Twig\Loader\LoaderInterface;
-use Symfony\Component\Form\FormRenderer;
-use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 
 /**
  * TwigProvider test cases.

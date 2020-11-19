@@ -12,10 +12,10 @@
 namespace Silex\Tests\Provider;
 
 use Silex\Application;
-use Silex\WebTestCase;
 use Silex\Provider\RememberMeServiceProvider;
 use Silex\Provider\SecurityServiceProvider;
 use Silex\Provider\SessionServiceProvider;
+use Silex\WebTestCase;
 use Symfony\Component\HttpKernel\HttpKernelBrowser as Client;
 use Symfony\Component\Security\Http\SecurityEvents;
 

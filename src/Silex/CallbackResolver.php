@@ -11,7 +11,11 @@
 
 namespace Silex;
 
+use InvalidArgumentException;
 use Pimple\Container;
+
+use function is_callable;
+use function is_string;
 
 class CallbackResolver
 {
@@ -43,12 +47,12 @@ class CallbackResolver
      *
      * @return callable
      *
-     * @throws \InvalidArgumentException in case the method does not exist
+     * @throws InvalidArgumentException in case the method does not exist
      */
     public function convertCallback($name)
     {
         if (preg_match(static::SERVICE_PATTERN, $name)) {
-            list($service, $method) = explode(':', $name, 2);
+            [$service, $method] = explode(':', $name, 2);
             $callback = [$this->app[$service], $method];
         } else {
             $service = $name;
@@ -56,7 +60,7 @@ class CallbackResolver
         }
 
         if (!is_callable($callback)) {
-            throw new \InvalidArgumentException(sprintf('Service "%s" is not callable.', $service));
+            throw new InvalidArgumentException(sprintf('Service "%s" is not callable.', $service));
         }
 
         return $callback;
@@ -69,7 +73,7 @@ class CallbackResolver
      *
      * @return string|callable A callable value or the string passed in
      *
-     * @throws \InvalidArgumentException in case the method does not exist
+     * @throws InvalidArgumentException in case the method does not exist
      */
     public function resolveCallback($name)
     {

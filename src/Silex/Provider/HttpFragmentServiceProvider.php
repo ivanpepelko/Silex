@@ -15,12 +15,11 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Silex\Api\EventListenerProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Fragment\FragmentHandler;
-use Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer;
-use Symfony\Component\HttpKernel\Fragment\EsiFragmentRenderer;
-use Symfony\Component\HttpKernel\Fragment\HIncludeFragmentRenderer;
 use Symfony\Component\HttpKernel\EventListener\FragmentListener;
-use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\HttpKernel\Fragment\EsiFragmentRenderer;
+use Symfony\Component\HttpKernel\Fragment\FragmentHandler;
+use Symfony\Component\HttpKernel\Fragment\HIncludeFragmentRenderer;
+use Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer;
 use Symfony\Component\HttpKernel\UriSigner;
 
 /**

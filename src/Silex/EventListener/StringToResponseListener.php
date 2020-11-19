@@ -11,10 +11,13 @@
 
 namespace Silex\EventListener;
 
-use Symfony\Component\HttpKernel\Event\ViewEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
+
+use function is_array;
+use function is_object;
 
 /**
  * Converts string responses to proper Response instances.

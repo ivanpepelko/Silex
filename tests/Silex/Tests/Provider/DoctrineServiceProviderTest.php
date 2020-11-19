@@ -11,13 +11,14 @@
 
 namespace Silex\Tests\Provider;
 
-use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDO\SQLite\Driver as SQLiteDriver;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 use Silex\Application;
 use Silex\Provider\DoctrineServiceProvider;
+
+use function in_array;
 
 /**
  * DoctrineProvider test cases.

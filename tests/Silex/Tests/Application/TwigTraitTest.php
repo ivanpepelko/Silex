@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Twig\Environment;
 
+use function get_class;
+
 /**
  * @author Fabien Potencier <fabien@symfony.com>
  */

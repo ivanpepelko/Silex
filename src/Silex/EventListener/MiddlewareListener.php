@@ -19,6 +19,8 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+use function call_user_func;
+
 /**
  * Manages the route middlewares.
  *

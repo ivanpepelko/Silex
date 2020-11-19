@@ -22,6 +22,10 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Throwable;
 
+use function call_user_func;
+use function is_array;
+use function is_object;
+
 /**
  * Wraps exception listeners.
  *
