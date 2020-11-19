@@ -11,9 +11,12 @@
 
 namespace Silex\Tests;
 
+use ArrayObject;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 use Silex\CallbackResolver;
+use stdClass;
 
 class CallbackResolverTest extends Testcase
 {
@@ -28,8 +31,8 @@ class CallbackResolverTest extends Testcase
 
     public function testShouldResolveCallback()
     {
-        $callable = function () {};
-        $this->app['some_service'] = function () { return new \ArrayObject(); };
+        $callable = function () { };
+        $this->app['some_service'] = function () { return new ArrayObject(); };
         $this->app['callable_service'] = function () use ($callable) {
             return $callable;
         };
@@ -61,13 +64,13 @@ class CallbackResolverTest extends Testcase
     }
 
     /**
-     * @expectedException          \InvalidArgumentException
-     * @expectedExceptionMessageRegExp  /Service "[a-z_]+" is not callable./
      * @dataProvider shouldThrowAnExceptionIfServiceIsNotCallableProvider
      */
     public function testShouldThrowAnExceptionIfServiceIsNotCallable($name)
     {
-        $this->app['non_callable_obj'] = function () { return new \stdClass(); };
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches("/Service \"[a-z_]+\" is not callable./");
+        $this->app['non_callable_obj'] = function () { return new stdClass(); };
         $this->app['non_callable'] = function () { return []; };
         $this->resolver->convertCallback($name);
     }

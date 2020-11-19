@@ -27,11 +27,11 @@ class TwigTraitTest extends TestCase
         $app = $this->createApplication();
 
         $app['twig'] = $mailer = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
-        $mailer->expects($this->once())->method('render')->will($this->returnValue('foo'));
+        $mailer->expects(self::once())->method('render')->willReturn('foo');
 
         $response = $app->render('view');
-        $this->assertEquals(Response::class, get_class($response));
-        $this->assertEquals('foo', $response->getContent());
+        self::assertEquals(Response::class, get_class($response));
+        self::assertEquals('foo', $response->getContent());
     }
 
     public function testRenderKeepResponse()
@@ -39,33 +39,33 @@ class TwigTraitTest extends TestCase
         $app = $this->createApplication();
 
         $app['twig'] = $mailer = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
-        $mailer->expects($this->once())->method('render')->willReturn('foo');
+        $mailer->expects(self::once())->method('render')->willReturn('foo');
 
         $response = $app->render('view', [], new Response('', 404));
-        $this->assertEquals(404, $response->getStatusCode());
+        self::assertEquals(404, $response->getStatusCode());
     }
 
     public function testRenderForStream()
     {
         $app = $this->createApplication();
 
-        $app['twig'] = $mailer = $this->getMockBuilder('Twig_Environment')->disableOriginalConstructor()->getMock();
-        $mailer->expects($this->once())->method('display')->will($this->returnCallback(function () { echo 'foo'; }));
+        $app['twig'] = $mailer = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
+        $mailer->expects(self::once())->method('display')->willReturnCallback(function () { echo 'foo'; });
 
         $response = $app->render('view', [], new StreamedResponse());
-        $this->assertEquals(StreamedResponse::class, get_class($response));
+        self::assertEquals(StreamedResponse::class, get_class($response));
 
         ob_start();
         $response->send();
-        $this->assertEquals('foo', ob_get_clean());
+        self::assertEquals('foo', ob_get_clean());
     }
 
     public function testRenderView()
     {
         $app = $this->createApplication();
 
-        $app['twig'] = $mailer = $this->getMockBuilder('Twig_Environment')->disableOriginalConstructor()->getMock();
-        $mailer->expects($this->once())->method('render');
+        $app['twig'] = $mailer = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
+        $mailer->expects(self::once())->method('render');
 
         $app->renderView('view');
     }

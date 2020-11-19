@@ -97,11 +97,9 @@ class RouterTest extends TestCase
         $this->assertTrue($response->isRedirect('/target2'));
     }
 
-    /**
-     * @expectedException NotFoundHttpException
-     */
     public function testMissingRoute()
     {
+        $this->expectException(NotFoundHttpException::class);
         $app = new Application();
         unset($app['exception_handler']);
 

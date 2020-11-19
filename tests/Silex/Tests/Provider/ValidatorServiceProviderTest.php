@@ -60,10 +60,10 @@ class ValidatorServiceProviderTest extends TestCase
      */
     public function testConstraintValidatorFactory($app)
     {
-        $this->assertInstanceOf('Silex\Provider\Validator\ConstraintValidatorFactory', $app['validator.validator_factory']);
+        self::assertInstanceOf('Silex\Provider\Validator\ConstraintValidatorFactory', $app['validator.validator_factory']);
 
         $validator = $app['validator.validator_factory']->getInstance(new Custom());
-        $this->assertInstanceOf('Silex\Tests\Provider\ValidatorServiceProviderTest\Constraint\CustomValidator', $validator);
+        self::assertInstanceOf('Silex\Tests\Provider\ValidatorServiceProviderTest\Constraint\CustomValidator', $validator);
     }
 
     /**
@@ -73,7 +73,7 @@ class ValidatorServiceProviderTest extends TestCase
     {
         $constraint = new Assert\Expression('true');
         $validator = $app['validator.validator_factory']->getInstance($constraint);
-        $this->assertInstanceOf('Symfony\Component\Validator\Constraints\ExpressionValidator', $validator);
+        self::assertInstanceOf('Symfony\Component\Validator\Constraints\ExpressionValidator', $validator);
     }
 
     /**
@@ -81,7 +81,7 @@ class ValidatorServiceProviderTest extends TestCase
      */
     public function testValidatorServiceIsAValidator($app)
     {
-        $this->assertTrue($app['validator'] instanceof ValidatorInterface);
+        self::assertTrue($app['validator'] instanceof ValidatorInterface);
     }
 
     /**
@@ -97,20 +97,23 @@ class ValidatorServiceProviderTest extends TestCase
             ],
         ]);
 
-        $builder = $app['form.factory']->createBuilder('Symfony\Component\Form\Extension\Core\Type\FormType', [], [
-            'constraints' => $constraints,
-        ]);
+        $builder = $app['form.factory']->createBuilder(
+            'Symfony\Component\Form\Extension\Core\Type\FormType',
+            [],
+            [
+                'constraints' => $constraints,
+            ]
+        );
 
         $form = $builder
             ->add('email', 'Symfony\Component\Form\Extension\Core\Type\EmailType', ['label' => 'Email'])
-            ->getForm()
-        ;
+            ->getForm();
 
         $form->submit(['email' => $email]);
 
-        $this->assertEquals($isValid, $form->isValid());
-        $this->assertCount($nbGlobalError, $form->getErrors());
-        $this->assertCount($nbEmailError, $form->offsetGet('email')->getErrors());
+        self::assertEquals($isValid, $form->isValid());
+        self::assertCount($nbGlobalError, $form->getErrors());
+        self::assertCount($nbEmailError, $form->offsetGet('email')->getErrors());
     }
 
     public function testValidatorWillNotAddNonexistentTranslationFiles()
@@ -131,7 +134,7 @@ class ValidatorServiceProviderTest extends TestCase
             $translator->trans('test');
             $this->addToAssertionCount(1);
         } catch (NotFoundResourceException $e) {
-            $this->fail('Validator should not add a translation resource that does not exist');
+            self::fail('Validator should not add a translation resource that does not exist');
         }
     }
 
@@ -165,7 +168,7 @@ class ValidatorServiceProviderTest extends TestCase
             $app['validator'];
         }
 
-        $this->assertEquals('Pas vide', $app['translator']->trans('This value should not be blank.', [], 'validators', 'fr'));
+        self::assertEquals('Pas vide', $app['translator']->trans('This value should not be blank.', [], 'validators', 'fr'));
     }
 
     public function getAddResourceData()
@@ -190,7 +193,7 @@ class ValidatorServiceProviderTest extends TestCase
 
         $app['validator'];
 
-        $this->assertEquals('Pas vide', $app['translator']->trans('This value should not be blank.', [], 'validators', 'fr'));
+        self::assertEquals('Pas vide', $app['translator']->trans('This value should not be blank.', [], 'validators', 'fr'));
     }
 
     public function testTranslatorResourcesIsArray()
@@ -201,6 +204,6 @@ class ValidatorServiceProviderTest extends TestCase
         $app->register(new ValidatorServiceProvider());
         $app->register(new TranslationServiceProvider());
 
-        $this->assertInternalType('array', $app['translator.resources']);
+        self::assertIsArray($app['translator.resources']);
     }
 }

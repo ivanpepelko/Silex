@@ -49,21 +49,24 @@ class MonologServiceProviderTest extends TestCase
     {
         $app = $this->getApplication();
 
-        $app->get('/foo', function () use ($app) {
-            return 'foo';
-        });
+        $app->get(
+            '/foo',
+            function () use ($app) {
+                return 'foo';
+            }
+        );
 
-        $this->assertFalse($app['monolog.handler']->hasInfoRecords());
+        self::assertFalse($app['monolog.handler']->hasInfoRecords());
 
         $request = Request::create('/foo');
         $app->handle($request);
 
-        $this->assertTrue($app['monolog.handler']->hasDebug('> GET /foo'));
-        $this->assertTrue($app['monolog.handler']->hasDebug('< 200'));
+        self::assertTrue($app['monolog.handler']->hasDebug('> GET /foo'));
+        self::assertTrue($app['monolog.handler']->hasDebug('< 200'));
 
         $records = $app['monolog.handler']->getRecords();
-        $this->assertContains('Matched route "{route}".', $records[0]['message']);
-        $this->assertSame('GET_foo', $records[0]['context']['route']);
+        self::assertStringContainsString('Matched route "{route}".', $records[0]['message']);
+        self::assertSame('GET_foo', $records[0]['context']['route']);
     }
 
     public function testManualLogging()
@@ -74,12 +77,12 @@ class MonologServiceProviderTest extends TestCase
             $app['monolog']->addRecord(Logger::DEBUG, 'logging a message');
         });
 
-        $this->assertFalse($app['monolog.handler']->hasDebugRecords());
+        self::assertFalse($app['monolog.handler']->hasDebugRecords());
 
         $request = Request::create('/log');
         $app->handle($request);
 
-        $this->assertTrue($app['monolog.handler']->hasDebug('logging a message'));
+        self::assertTrue($app['monolog.handler']->hasDebug('logging a message'));
     }
 
     public function testOverrideFormatter()
@@ -91,7 +94,7 @@ class MonologServiceProviderTest extends TestCase
             'monolog.logfile' => 'php://memory',
         ]);
 
-        $this->assertInstanceOf('Monolog\Formatter\JsonFormatter', $app['monolog.handler']->getFormatter());
+        self::assertInstanceOf('Monolog\Formatter\JsonFormatter', $app['monolog.handler']->getFormatter());
     }
 
     public function testErrorLogging()
@@ -107,7 +110,7 @@ class MonologServiceProviderTest extends TestCase
         /*
          * Simulate 404, logged to error level
          */
-        $this->assertFalse($app['monolog.handler']->hasErrorRecords());
+        self::assertFalse($app['monolog.handler']->hasErrorRecords());
 
         $request = Request::create('/error');
         $app->handle($request);
@@ -122,7 +125,7 @@ class MonologServiceProviderTest extends TestCase
             throw new RuntimeException('very bad error');
         });
 
-        $this->assertFalse($app['monolog.handler']->hasCriticalRecords());
+        self::assertFalse($app['monolog.handler']->hasCriticalRecords());
 
         $request = Request::create('/error');
         $app->handle($request);
@@ -139,12 +142,12 @@ class MonologServiceProviderTest extends TestCase
             return new RedirectResponse('/bar', 302);
         });
 
-        $this->assertFalse($app['monolog.handler']->hasInfoRecords());
+        self::assertFalse($app['monolog.handler']->hasInfoRecords());
 
         $request = Request::create('/foo');
         $app->handle($request);
 
-        $this->assertTrue($app['monolog.handler']->hasDebug('< 302 /bar'));
+        self::assertTrue($app['monolog.handler']->hasDebug('< 302 /bar'));
     }
 
     public function testErrorLoggingGivesWayToSecurityExceptionHandling()
@@ -172,7 +175,7 @@ class MonologServiceProviderTest extends TestCase
         $request = Request::create('/admin');
         $app->run($request);
 
-        $this->assertEmpty($app['monolog.handler']->getRecords(), 'Expected no logging to occur');
+        self::assertEmpty($app['monolog.handler']->getRecords(), 'Expected no logging to occur');
     }
 
     public function testStringErrorLevel()
@@ -180,7 +183,7 @@ class MonologServiceProviderTest extends TestCase
         $app = $this->getApplication();
         $app['monolog.level'] = 'info';
 
-        $this->assertSame(Logger::INFO, $app['monolog.handler']->getLevel());
+        self::assertSame(Logger::INFO, $app['monolog.handler']->getLevel());
     }
 
     /**
@@ -202,7 +205,7 @@ class MonologServiceProviderTest extends TestCase
 
         $app->handle(Request::create('/404'));
 
-        $this->assertEmpty($app['monolog.handler']->getRecords(), 'Expected no logging to occur');
+        self::assertEmpty($app['monolog.handler']->getRecords(), 'Expected no logging to occur');
     }
 
     public function testExceptionFiltering()
@@ -227,7 +230,7 @@ class MonologServiceProviderTest extends TestCase
         $request = Request::create('/foo');
         $app->handle($request);
 
-        $this->assertCount(0, $app['monolog.handler']->getRecords(), 'Expected no logging to occur');
+        self::assertCount(0, $app['monolog.handler']->getRecords(), 'Expected no logging to occur');
     }
 
     protected function assertMatchingRecord($pattern, $level, TestHandler $handler)
@@ -240,7 +243,7 @@ class MonologServiceProviderTest extends TestCase
                 continue;
             }
         }
-        $this->assertTrue($found, "Trying to find record matching $pattern with level $level");
+        self::assertTrue($found, "Trying to find record matching $pattern with level $level");
     }
 
     protected function getApplication()

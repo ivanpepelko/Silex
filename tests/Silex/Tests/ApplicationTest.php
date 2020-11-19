@@ -416,11 +416,9 @@ class ApplicationTest extends TestCase
         $this->assertSame(['1_routeTriggered', '2_filterAfter', '3_responseSent', '4_filterFinish'], $containerTarget);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function testNonResponseAndNonNullReturnFromRouteBeforeMiddlewareShouldThrowRuntimeException()
     {
+        $this->expectException(RuntimeException::class);
         $app = new Application();
 
         $middleware = function (Request $request) {
@@ -435,11 +433,9 @@ class ApplicationTest extends TestCase
         $app->handle(Request::create('/'), HttpKernelInterface::MASTER_REQUEST, false);
     }
 
-    /**
-     * @expectedException RuntimeException
-     */
     public function testNonResponseAndNonNullReturnFromRouteAfterMiddlewareShouldThrowRuntimeException()
     {
+        $this->expectException(RuntimeException::class);
         $app = new Application();
 
         $middleware = function (Request $request) {
@@ -498,22 +494,22 @@ class ApplicationTest extends TestCase
         $this->assertEquals(['first', 'second', 'third'], array_keys(iterator_to_array($app['routes'])));
     }
 
-    /**
-     * @expectedException        LogicException
-     * @expectedExceptionMessage The "mount" method takes either a "ControllerCollection" instance, "ControllerProviderInterface" instance, or a callable.
-     */
     public function testMountNullException()
     {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage(
+            "The \"mount\" method takes either a \"ControllerCollection\" instance, \"ControllerProviderInterface\" instance, or a callable."
+        );
         $app = new Application();
         $app->mount('/exception', null);
     }
 
-    /**
-     * @expectedException        LogicException
-     * @expectedExceptionMessage The method "Silex\Tests\IncorrectControllerCollection::connect" must return a "ControllerCollection" instance. Got: "NULL"
-     */
     public function testMountWrongConnectReturnValueException()
     {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage(
+            "The method \"Silex\Tests\IncorrectControllerCollection::connect\" must return a \"ControllerCollection\" instance. Got: \"NULL\""
+        );
         $app = new Application();
         $app->mount('/exception', new IncorrectControllerCollection());
     }
@@ -539,12 +535,10 @@ class ApplicationTest extends TestCase
         $this->assertEquals(__FILE__, (string) $response->getFile());
     }
 
-    /**
-     * @expectedException        LogicException
-     * @expectedExceptionMessage The "homepage" route must have code to run when it matches.
-     */
     public function testGetRouteCollectionWithRouteWithoutController()
     {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage("The \"homepage\" route must have code to run when it matches.");
         $app = new Application();
         unset($app['exception_handler']);
         $app->match('/')->bind('homepage');
