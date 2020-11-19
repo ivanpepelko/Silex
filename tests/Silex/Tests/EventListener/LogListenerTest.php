@@ -12,18 +12,18 @@
 namespace Silex\Tests\EventListener;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use RuntimeException;
 use Silex\EventListener\LogListener;
-use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -82,13 +82,13 @@ class LogListenerTest extends TestCase
         $logger
             ->expects(self::at(0))
             ->method('log')
-            ->with(LogLevel::CRITICAL, 'RuntimeException: Fatal error (uncaught exception) at ' . __FILE__ . ' line ' . (__LINE__ + 14));
+            ->with(LogLevel::CRITICAL, 'RuntimeException: Fatal error (uncaught exception) at ' . __FILE__ . ' line ' . (__LINE__ + 15));
         $logger
             ->expects(self::at(1))
             ->method('log')
             ->with(
                 LogLevel::ERROR,
-                'Symfony\Component\HttpKernel\Exception\HttpException: Http error (uncaught exception) at ' . __FILE__ . ' line ' . (__LINE__ + 9)
+                'Symfony\Component\HttpKernel\Exception\HttpException: Http error (uncaught exception) at ' . __FILE__ . ' line ' . (__LINE__ + 13)
             );
 
         $dispatcher = new EventDispatcher();
