@@ -11,14 +11,16 @@
 
 namespace Silex\Provider;
 
+use LogicException;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use ReflectionClass;
+use Symfony\Component\HttpKernel\EventListener\LocaleAwareListener;
 use Symfony\Component\Translation\Translator;
 use Symfony\Component\Translation\Formatter\MessageFormatter;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Loader\XliffFileLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\EventListener\TranslatorListener;
 use Silex\Api\EventListenerProviderInterface;
 
 /**
@@ -32,7 +34,7 @@ class TranslationServiceProvider implements ServiceProviderInterface, EventListe
     {
         $app['translator'] = function ($app) {
             if (!isset($app['locale'])) {
-                throw new \LogicException('You must define \'locale\' parameter or register the LocaleServiceProvider to use the TranslationServiceProvider');
+                throw new LogicException('You must define \'locale\' parameter or register the LocaleServiceProvider to use the TranslationServiceProvider');
             }
 
             $translator = new Translator($app['locale'], $app['translator.message_selector'], $app['translator.cache_dir'], $app['debug']);
@@ -41,16 +43,16 @@ class TranslationServiceProvider implements ServiceProviderInterface, EventListe
             $translator->addLoader('xliff', new XliffFileLoader());
 
             if (isset($app['validator'])) {
-                $r = new \ReflectionClass('Symfony\Component\Validator\Validation');
-                $file = dirname($r->getFilename()).'/Resources/translations/validators.'.$app['locale'].'.xlf';
+                $r = new ReflectionClass('Symfony\Component\Validator\Validation');
+                $file = dirname($r->getFilename()) . '/Resources/translations/validators.' . $app['locale'] . '.xlf';
                 if (file_exists($file)) {
                     $translator->addResource('xliff', $file, $app['locale'], 'validators');
                 }
             }
 
             if (isset($app['form.factory'])) {
-                $r = new \ReflectionClass('Symfony\Component\Form\Form');
-                $file = dirname($r->getFilename()).'/Resources/translations/validators.'.$app['locale'].'.xlf';
+                $r = new ReflectionClass('Symfony\Component\Form\Form');
+                $file = dirname($r->getFilename()) . '/Resources/translations/validators.' . $app['locale'] . '.xlf';
                 if (file_exists($file)) {
                     $translator->addResource('xliff', $file, $app['locale'], 'validators');
                 }
@@ -72,7 +74,7 @@ class TranslationServiceProvider implements ServiceProviderInterface, EventListe
 
         if (isset($app['request_stack'])) {
             $app['translator.listener'] = function ($app) {
-                return new TranslatorListener($app['translator'], $app['request_stack']);
+                return new LocaleAwareListener([], $app['request_stack']);
             };
         }
 

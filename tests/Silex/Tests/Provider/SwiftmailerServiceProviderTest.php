@@ -11,9 +11,12 @@
 
 namespace Silex\Tests\Provider;
 
+use Exception;
 use PHPUnit\Framework\TestCase;
 use Silex\Application;
 use Silex\Provider\SwiftmailerServiceProvider;
+use Swift_Message;
+use Swift_Transport_NullTransport;
 use Symfony\Component\HttpFoundation\Request;
 
 class SwiftmailerServiceProviderTest extends TestCase
@@ -38,7 +41,7 @@ class SwiftmailerServiceProviderTest extends TestCase
         $app['swiftmailer.use_spool'] = false;
 
         $app['swiftmailer.spooltransport'] = function () {
-            throw new \Exception('Should not be instantiated');
+            throw new Exception('Should not be instantiated');
         };
 
         $this->assertInstanceOf('Swift_Mailer', $app['mailer']);
@@ -56,7 +59,7 @@ class SwiftmailerServiceProviderTest extends TestCase
         };
 
         $app->get('/', function () use ($app) {
-            $app['mailer']->send(\Swift_Message::newInstance());
+            $app['mailer']->send(new Swift_Message());
         });
 
         $this->assertCount(0, $app['swiftmailer.spool']->getMessages());
@@ -104,12 +107,12 @@ class SwiftmailerServiceProviderTest extends TestCase
 
         $app['swiftmailer.sender_address'] = 'foo@example.com';
 
-        $app['mailer']->send(\Swift_Message::newInstance());
+        $app['mailer']->send(new Swift_Message());
 
         $messages = $app['swiftmailer.spool']->getMessages();
         $this->assertCount(1, $messages);
 
-        list($message) = $messages;
+        [$message] = $messages;
         $this->assertEquals('foo@example.com', $message->getReturnPath());
     }
 
@@ -128,7 +131,7 @@ class SwiftmailerServiceProviderTest extends TestCase
         };
 
         $dispatcher = $app['swiftmailer.transport.eventdispatcher'];
-        $event = $dispatcher->createTransportChangeEvent(new \Swift_Transport_NullTransport($dispatcher));
+        $event = $dispatcher->createTransportChangeEvent(new Swift_Transport_NullTransport($dispatcher));
         $dispatcher->dispatchEvent($event, 'beforeTransportStarted');
     }
 }

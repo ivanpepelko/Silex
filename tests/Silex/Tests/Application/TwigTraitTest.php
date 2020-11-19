@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use Silex\Provider\TwigServiceProvider;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Twig\Environment;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
@@ -25,11 +26,11 @@ class TwigTraitTest extends TestCase
     {
         $app = $this->createApplication();
 
-        $app['twig'] = $mailer = $this->getMockBuilder('Twig_Environment')->disableOriginalConstructor()->getMock();
+        $app['twig'] = $mailer = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
         $mailer->expects($this->once())->method('render')->will($this->returnValue('foo'));
 
         $response = $app->render('view');
-        $this->assertEquals('Symfony\Component\HttpFoundation\Response', get_class($response));
+        $this->assertEquals(Response::class, get_class($response));
         $this->assertEquals('foo', $response->getContent());
     }
 
@@ -37,8 +38,8 @@ class TwigTraitTest extends TestCase
     {
         $app = $this->createApplication();
 
-        $app['twig'] = $mailer = $this->getMockBuilder('Twig_Environment')->disableOriginalConstructor()->getMock();
-        $mailer->expects($this->once())->method('render')->will($this->returnValue('foo'));
+        $app['twig'] = $mailer = $this->getMockBuilder(Environment::class)->disableOriginalConstructor()->getMock();
+        $mailer->expects($this->once())->method('render')->willReturn('foo');
 
         $response = $app->render('view', [], new Response('', 404));
         $this->assertEquals(404, $response->getStatusCode());
@@ -52,7 +53,7 @@ class TwigTraitTest extends TestCase
         $mailer->expects($this->once())->method('display')->will($this->returnCallback(function () { echo 'foo'; }));
 
         $response = $app->render('view', [], new StreamedResponse());
-        $this->assertEquals('Symfony\Component\HttpFoundation\StreamedResponse', get_class($response));
+        $this->assertEquals(StreamedResponse::class, get_class($response));
 
         ob_start();
         $response->send();

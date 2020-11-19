@@ -29,9 +29,11 @@
         "symfony/asset": "^5.1",
         "symfony/expression-language": "^5.1",
         "symfony/security-core": "^5.1",
+        "symfony/security-csrf": "^5.1",
+        "symfony/security-guard": "^5.1",
+        "symfony/security-http": "^5.1",
         "symfony/config": "^5.1",
         "symfony/form": "^5.1",
-        "symfony/browser-kit": "^5.1",
         "symfony/css-selector": "^5.1",
         "symfony/error-handler": "^5.1",
         "symfony/dom-crawler": "^5.1",
@@ -71,5 +73,8 @@
         "branch-alias": {
             "dev-master": "3.0.x-dev"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }

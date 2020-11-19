@@ -17,6 +17,7 @@ use Silex\Provider\TranslationServiceProvider;
 use Silex\Provider\LocaleServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Translation\Translator;
 
 /**
  * TranslationProvider test cases.
@@ -103,7 +104,7 @@ class TranslationServiceProviderTest extends TestCase
     {
         $app = $this->getPreparedApp();
 
-        $result = $app['translator']->transChoice($key, $number, ['%count%' => $number], null, $locale);
+        $result = $app['translator']->trans($key, ['%count%' => $number], null, $locale);
         $this->assertEquals($expected, $result);
     }
 

@@ -24,9 +24,9 @@ class TestSessionListener extends BaseTestSessionListener
 {
     private $app;
 
-    /** @noinspection MagicMethodsValidityInspection */
     public function __construct(Container $app)
     {
+        parent::__construct($app);
         $this->app = $app;
     }
 

@@ -11,35 +11,39 @@
 
 namespace Silex;
 
+use LogicException;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use Psr\Container\ContainerInterface;
+use RuntimeException;
+use Silex\Api\BootableProviderInterface;
+use Silex\Api\ControllerProviderInterface;
+use Silex\Api\EventListenerProviderInterface;
+use Silex\Provider\ExceptionHandlerServiceProvider;
+use Silex\Provider\HttpKernelServiceProvider;
+use Silex\Provider\RoutingServiceProvider;
+use SplFileInfo;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\TerminableInterface;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\HttpKernel\Event\PostResponseEvent;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Silex\Api\BootableProviderInterface;
-use Silex\Api\EventListenerProviderInterface;
-use Silex\Api\ControllerProviderInterface;
-use Silex\Provider\ExceptionHandlerServiceProvider;
-use Silex\Provider\RoutingServiceProvider;
-use Silex\Provider\HttpKernelServiceProvider;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\Event\TerminateEvent;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\HttpKernel\TerminableInterface;
 
 /**
  * The Silex framework class.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  */
-class Application extends Container implements HttpKernelInterface, TerminableInterface
+class Application extends Container implements HttpKernelInterface, TerminableInterface, ContainerInterface
 {
     const VERSION = '2.3.1-DEV';
 
@@ -246,17 +250,21 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
     {
         $app = $this;
 
-        $this->on(KernelEvents::REQUEST, function (GetResponseEvent $event) use ($callback, $app) {
-            if (!$event->isMasterRequest()) {
-                return;
-            }
+        $this->on(
+            KernelEvents::REQUEST,
+            function (RequestEvent $event) use ($callback, $app) {
+                if (!$event->isMasterRequest()) {
+                    return;
+                }
 
-            $ret = call_user_func($app['callback_resolver']->resolveCallback($callback), $event->getRequest(), $app);
+                $ret = call_user_func($app['callback_resolver']->resolveCallback($callback), $event->getRequest(), $app);
 
-            if ($ret instanceof Response) {
-                $event->setResponse($ret);
-            }
-        }, $priority);
+                if ($ret instanceof Response) {
+                    $event->setResponse($ret);
+                }
+            },
+            $priority
+        );
     }
 
     /**
@@ -272,18 +280,20 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
     {
         $app = $this;
 
-        $this->on(KernelEvents::RESPONSE, function (FilterResponseEvent $event) use ($callback, $app) {
-            if (!$event->isMasterRequest()) {
-                return;
-            }
+        $this->on(
+            KernelEvents::RESPONSE,
+            function (ResponseEvent $event) use ($callback, $app) {
+                if (!$event->isMasterRequest()) {
+                    return;
+                }
 
-            $response = call_user_func($app['callback_resolver']->resolveCallback($callback), $event->getRequest(), $event->getResponse(), $app);
-            if ($response instanceof Response) {
-                $event->setResponse($response);
-            } elseif (null !== $response) {
-                throw new \RuntimeException('An after middleware returned an invalid response value. Must return null or an instance of Response.');
-            }
-        }, $priority);
+                $response = call_user_func($app['callback_resolver']->resolveCallback($callback), $event->getRequest(), $event->getResponse(), $app);
+                if ($response instanceof Response) {
+                    $event->setResponse($response);
+                } elseif (null !== $response) {
+                    throw new RuntimeException('An after middleware returned an invalid response value. Must return null or an instance of Response.');
+                }
+            }, $priority);
     }
 
     /**
@@ -299,9 +309,13 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
     {
         $app = $this;
 
-        $this->on(KernelEvents::TERMINATE, function (PostResponseEvent $event) use ($callback, $app) {
-            call_user_func($app['callback_resolver']->resolveCallback($callback), $event->getRequest(), $event->getResponse(), $app);
-        }, $priority);
+        $this->on(
+            KernelEvents::TERMINATE,
+            function (TerminateEvent $event) use ($callback, $app) {
+                call_user_func($app['callback_resolver']->resolveCallback($callback), $event->getRequest(), $event->getResponse(), $app);
+            },
+            $priority
+        );
     }
 
     /**
@@ -422,10 +436,10 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
     /**
      * Sends a file.
      *
-     * @param \SplFileInfo|string $file               The file to stream
-     * @param int                 $status             The response status code
-     * @param array               $headers            An array of response headers
-     * @param null|string         $contentDisposition The type of Content-Disposition to set automatically with the filename
+     * @param SplFileInfo|string $file               The file to stream
+     * @param int                $status             The response status code
+     * @param array              $headers            An array of response headers
+     * @param null|string        $contentDisposition The type of Content-Disposition to set automatically with the filename
      *
      * @return BinaryFileResponse
      */
@@ -438,11 +452,12 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
      * Mounts controllers under the given route prefix.
      *
      * @param string                                                    $prefix      The route prefix
-     * @param ControllerCollection|callable|ControllerProviderInterface $controllers A ControllerCollection, a callable, or a ControllerProviderInterface instance
+     * @param ControllerCollection|callable|ControllerProviderInterface $controllers A ControllerCollection, a callable, or a ControllerProviderInterface
+     *                                                                               instance
      *
      * @return Application
      *
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function mount($prefix, $controllers)
     {
@@ -450,12 +465,20 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
             $connectedControllers = $controllers->connect($this);
 
             if (!$connectedControllers instanceof ControllerCollection) {
-                throw new \LogicException(sprintf('The method "%s::connect" must return a "ControllerCollection" instance. Got: "%s"', get_class($controllers), is_object($connectedControllers) ? get_class($connectedControllers) : gettype($connectedControllers)));
+                throw new LogicException(
+                    sprintf(
+                        'The method "%s::connect" must return a "ControllerCollection" instance. Got: "%s"',
+                        get_class($controllers),
+                        is_object($connectedControllers) ? get_class($connectedControllers) : gettype($connectedControllers)
+                    )
+                );
             }
 
             $controllers = $connectedControllers;
         } elseif (!$controllers instanceof ControllerCollection && !is_callable($controllers)) {
-            throw new \LogicException('The "mount" method takes either a "ControllerCollection" instance, "ControllerProviderInterface" instance, or a callable.');
+            throw new LogicException(
+                'The "mount" method takes either a "ControllerCollection" instance, "ControllerProviderInterface" instance, or a callable.'
+            );
         }
 
         $this['controllers']->mount($prefix, $controllers);
@@ -502,5 +525,10 @@ class Application extends Container implements HttpKernelInterface, TerminableIn
     public function terminate(Request $request, Response $response)
     {
         $this['kernel']->terminate($request, $response);
+    }
+
+    public function has($id)
+    {
+        return $this->offsetExists($id);
     }
 }

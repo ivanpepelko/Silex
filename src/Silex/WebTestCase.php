@@ -11,8 +11,10 @@
 
 namespace Silex;
 
+use LogicException;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpKernel\Client;
+use Symfony\Component\BrowserKit\AbstractBrowser;
+use Symfony\Component\HttpKernel\HttpKernelBrowser as Client;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 /**
@@ -56,8 +58,8 @@ abstract class WebTestCase extends TestCase
      */
     public function createClient(array $server = [])
     {
-        if (!class_exists('Symfony\Component\BrowserKit\Client')) {
-            throw new \LogicException('Component "symfony/browser-kit" is required by WebTestCase.'.PHP_EOL.'Run composer require symfony/browser-kit');
+        if (!class_exists(AbstractBrowser::class)) {
+            throw new LogicException('Component "symfony/browser-kit" is required by WebTestCase.' . PHP_EOL . 'Run composer require symfony/browser-kit');
         }
 
         return new Client($this->app, $server);

@@ -11,6 +11,7 @@
 
 namespace Silex\Provider;
 
+use LogicException;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Silex\Application;
@@ -20,12 +21,12 @@ use Silex\Api\EventListenerProviderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestMatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Encoder\NativePasswordEncoder;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserChecker;
 use Symfony\Component\Security\Core\User\InMemoryUserProvider;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
-use Symfony\Component\Security\Core\Encoder\BCryptPasswordEncoder;
 use Symfony\Component\Security\Core\Encoder\Pbkdf2PasswordEncoder;
 use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
 use Symfony\Component\Security\Core\Authentication\Provider\AnonymousAuthenticationProvider;
@@ -115,8 +116,8 @@ class SecurityServiceProvider implements ServiceProviderInterface, EventListener
         // by default, all users use the digest encoder
         $app['security.encoder_factory'] = function ($app) {
             return new EncoderFactory([
-                'Symfony\Component\Security\Core\User\UserInterface' => $app['security.default_encoder'],
-            ]);
+                                          'Symfony\Component\Security\Core\User\UserInterface' => $app['security.default_encoder'],
+                                      ]);
         };
 
         // by default, all users use the BCrypt encoder
@@ -129,7 +130,7 @@ class SecurityServiceProvider implements ServiceProviderInterface, EventListener
         };
 
         $app['security.encoder.bcrypt'] = function ($app) {
-            return new BCryptPasswordEncoder($app['security.encoder.bcrypt.cost']);
+            return new NativePasswordEncoder($app['security.encoder.bcrypt.cost']);
         };
 
         $app['security.encoder.pbkdf2'] = function ($app) {
@@ -268,12 +269,12 @@ class SecurityServiceProvider implements ServiceProviderInterface, EventListener
                         }
 
                         if (!isset($app['security.authentication_listener.factory.'.$type])) {
-                            throw new \LogicException(sprintf('The "%s" authentication entry is not registered.', $type));
+                            throw new LogicException(sprintf('The "%s" authentication entry is not registered.', $type));
                         }
 
                         $options['stateless'] = $stateless;
 
-                        list($providerId, $listenerId, $entryPointId, $position) = $app['security.authentication_listener.factory.'.$type]($name, $options);
+                        [$providerId, $listenerId, $entryPointId, $position] = $app['security.authentication_listener.factory.' . $type]($name, $options);
 
                         if (null !== $entryPointId) {
                             $entryPoint = $entryPointId;
@@ -359,7 +360,6 @@ class SecurityServiceProvider implements ServiceProviderInterface, EventListener
                 $app['security.access_manager'],
                 $app['security.access_map'],
                 $app['security.authentication_manager'],
-                $app['logger']
             );
         };
 
@@ -632,10 +632,12 @@ class SecurityServiceProvider implements ServiceProviderInterface, EventListener
                 return $app[reset($authenticatorIds)];
             }
             // we have multiple entry points - we must ask them to configure one
-            throw new \LogicException(sprintf(
-                'Because you have multiple guard configurators, you need to set the "guard.entry_point" key to one of your configurators (%s)',
-                implode(', ', $authenticatorIds)
-            ));
+            throw new LogicException(
+                sprintf(
+                    'Because you have multiple guard configurators, you need to set the "guard.entry_point" key to one of your configurators (%s)',
+                    implode(', ', $authenticatorIds)
+                )
+            );
         });
 
         $app['security.authentication_provider.dao._proto'] = $app->protect(function ($name, $options) use ($app) {
@@ -686,7 +688,7 @@ class SecurityServiceProvider implements ServiceProviderInterface, EventListener
     {
         $controllers = $app['controllers_factory'];
         foreach ($this->fakeRoutes as $route) {
-            list($method, $pattern, $name) = $route;
+            [$method, $pattern, $name] = $route;
 
             $controllers->$method($pattern)->run(null)->bind($name);
         }

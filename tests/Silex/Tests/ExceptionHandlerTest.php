@@ -11,7 +11,10 @@
 
 namespace Silex\Tests;
 
+use Exception;
+use LogicException;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,7 +33,7 @@ class ExceptionHandlerTest extends TestCase
         $app['debug'] = false;
 
         $app->match('/foo', function () {
-            throw new \RuntimeException('foo exception');
+            throw new RuntimeException('foo exception');
         });
 
         $request = Request::create('/foo');
@@ -45,7 +48,7 @@ class ExceptionHandlerTest extends TestCase
         $app['debug'] = true;
 
         $app->match('/foo', function () {
-            throw new \RuntimeException('foo exception');
+            throw new RuntimeException('foo exception');
         });
 
         $request = Request::create('/foo');
@@ -111,14 +114,14 @@ class ExceptionHandlerTest extends TestCase
         unset($app['exception_handler']);
 
         $app->match('/foo', function () {
-            throw new \RuntimeException('foo exception');
+            throw new RuntimeException('foo exception');
         });
 
         try {
             $request = Request::create('/foo');
             $app->handle($request);
             $this->fail('->handle() should not catch exceptions where no error handler was supplied');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->assertEquals('foo exception', $e->getMessage());
         }
     }
@@ -128,7 +131,7 @@ class ExceptionHandlerTest extends TestCase
         $app = new Application();
 
         $app->match('/500', function () {
-            throw new \RuntimeException('foo exception');
+            throw new RuntimeException('foo exception');
         });
 
         $app->match('/404', function () {
@@ -157,7 +160,7 @@ class ExceptionHandlerTest extends TestCase
         $app = new Application();
 
         $app->match('/foo', function () {
-            throw new \RuntimeException('foo exception');
+            throw new RuntimeException('foo exception');
         });
 
         $errors = 0;
@@ -193,7 +196,7 @@ class ExceptionHandlerTest extends TestCase
         unset($app['exception_handler']);
 
         $app->match('/foo', function () {
-            throw new \RuntimeException('foo exception');
+            throw new RuntimeException('foo exception');
         });
 
         $errors = 0;
@@ -206,9 +209,9 @@ class ExceptionHandlerTest extends TestCase
             $request = Request::create('/foo');
             $app->handle($request);
             $this->fail('->handle() should not catch exceptions where an empty error handler was supplied');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->assertEquals('foo exception', $e->getMessage());
-        } catch (\LogicException $e) {
+        } catch (LogicException $e) {
             $this->assertEquals('foo exception', $e->getPrevious()->getMessage());
         }
 
@@ -220,7 +223,7 @@ class ExceptionHandlerTest extends TestCase
         $app = new Application();
 
         $app->match('/foo', function () {
-            throw new \RuntimeException('foo exception');
+            throw new RuntimeException('foo exception');
         });
 
         $app->error(function ($e) {
@@ -236,18 +239,18 @@ class ExceptionHandlerTest extends TestCase
         $app = new Application();
 
         $app->match('/foo', function () {
-            throw new \RuntimeException('foo exception');
+            throw new RuntimeException('foo exception');
         });
 
         $app->error(function ($e) {
-            throw new \RuntimeException('foo exception handler exception');
+            throw new RuntimeException('foo exception handler exception');
         });
 
         try {
             $request = Request::create('/foo');
             $app->handle($request);
             $this->fail('->handle() should not catch exceptions thrown from an error handler');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->assertEquals('foo exception handler exception', $e->getMessage());
         }
     }
@@ -257,7 +260,7 @@ class ExceptionHandlerTest extends TestCase
         $app = new Application();
 
         $app->match('/foo', function () {
-            throw new \RuntimeException('foo exception');
+            throw new RuntimeException('foo exception');
         });
 
         $app->before(function () {
@@ -270,7 +273,7 @@ class ExceptionHandlerTest extends TestCase
             $request = Request::create('/foo');
             $app->handle($request);
             $this->fail('default exception handler should have been removed');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $this->assertEquals('foo exception', $e->getMessage());
         }
     }
@@ -281,12 +284,14 @@ class ExceptionHandlerTest extends TestCase
         $app['debug'] = false;
 
         $app->match('/foo', function () {
-            throw new \Exception();
+            throw new Exception();
         });
 
-        $app->error(function (\Exception $e) {
-            return new Response('Exception thrown', 500);
-        });
+        $app->error(
+            function (Exception $e) {
+                return new Response('Exception thrown', 500);
+            }
+        );
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
@@ -301,18 +306,22 @@ class ExceptionHandlerTest extends TestCase
 
         $app->match('/foo', function () {
             // Throw a normal exception
-            throw new \Exception();
+            throw new Exception();
         });
 
         // Register 2 error handlers, each with a specified Exception class
         // Since we throw a standard Exception above only
         // the second error handler should fire
-        $app->error(function (\LogicException $e) { // Extends \Exception
-            return 'Caught LogicException';
-        });
-        $app->error(function (\Exception $e) {
-            return 'Caught Exception';
-        });
+        $app->error(
+            function (LogicException $e) { // Extends \Exception
+                return 'Caught LogicException';
+            }
+        );
+        $app->error(
+            function (Exception $e) {
+                return 'Caught Exception';
+            }
+        );
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
@@ -326,18 +335,22 @@ class ExceptionHandlerTest extends TestCase
 
         $app->match('/foo', function () {
             // Throw a specified exception
-            throw new \LogicException();
+            throw new LogicException();
         });
 
         // Register 2 error handlers, each with a specified Exception class
         // Since we throw a LogicException above
         // the first error handler should fire
-        $app->error(function (\LogicException $e) { // Extends \Exception
-            return 'Caught LogicException';
-        });
-        $app->error(function (\Exception $e) {
-            return 'Caught Exception';
-        });
+        $app->error(
+            function (LogicException $e) { // Extends \Exception
+                return 'Caught LogicException';
+            }
+        );
+        $app->error(
+            function (Exception $e) {
+                return 'Caught Exception';
+            }
+        );
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
@@ -351,7 +364,7 @@ class ExceptionHandlerTest extends TestCase
 
         $app->match('/foo', function () {
             // Throw a specified exception
-            throw new \LogicException();
+            throw new LogicException();
         });
 
         // Register the \Exception error handler first, since the
@@ -359,12 +372,16 @@ class ExceptionHandlerTest extends TestCase
         // second more specific error handler should not fire since
         // the \Exception error handler is registered first and also
         // captures all exceptions that extend it
-        $app->error(function (\Exception $e) {
-            return 'Caught Exception';
-        });
-        $app->error(function (\LogicException $e) { // Extends \Exception
-            return 'Caught LogicException';
-        });
+        $app->error(
+            function (Exception $e) {
+                return 'Caught Exception';
+            }
+        );
+        $app->error(
+            function (LogicException $e) { // Extends \Exception
+                return 'Caught LogicException';
+            }
+        );
 
         $request = Request::create('/foo');
         $response = $app->handle($request);
@@ -377,7 +394,7 @@ class ExceptionHandlerTest extends TestCase
         $app['debug'] = false;
 
         $app->match('/foo', function () {
-            throw new \Exception();
+            throw new Exception();
         });
 
         // Array style callback for error handler
@@ -388,7 +405,7 @@ class ExceptionHandlerTest extends TestCase
         $this->assertContains('Caught Exception', $response->getContent());
     }
 
-    protected function checkRouteResponse($app, $path, $expectedContent, $method = 'get', $message = null)
+    protected function checkRouteResponse($app, $path, $expectedContent, $method = 'get', $message = '')
     {
         $request = Request::create($path, $method);
         $response = $app->handle($request);

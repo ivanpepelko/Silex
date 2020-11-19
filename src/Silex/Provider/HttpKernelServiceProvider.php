@@ -12,6 +12,7 @@ use Silex\EventListener\MiddlewareListener;
 use Silex\EventListener\StringToResponseListener;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\UrlHelper;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -57,6 +58,10 @@ class HttpKernelServiceProvider implements ServiceProviderInterface, EventListen
 
         $app['callback_resolver'] = function ($app) {
             return new CallbackResolver($app);
+        };
+
+        $app['url_helper'] = function ($app) {
+            return new UrlHelper($app['request_stack'], $app['request_context']);
         };
     }
 

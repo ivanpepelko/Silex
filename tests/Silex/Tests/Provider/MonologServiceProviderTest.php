@@ -11,12 +11,16 @@
 
 namespace Silex\Tests\Provider;
 
+use Exception;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
+use RuntimeException;
 use Silex\Application;
 use Silex\Provider\MonologServiceProvider;
+use Silex\Provider\SecurityServiceProvider;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -67,7 +71,7 @@ class MonologServiceProviderTest extends TestCase
         $app = $this->getApplication();
 
         $app->get('/log', function () use ($app) {
-            $app['monolog']->addDebug('logging a message');
+            $app['monolog']->addRecord(Logger::DEBUG, 'logging a message');
         });
 
         $this->assertFalse($app['monolog.handler']->hasDebugRecords());
@@ -94,9 +98,11 @@ class MonologServiceProviderTest extends TestCase
     {
         $app = $this->getApplication();
 
-        $app->error(function (\Exception $e) {
-            return 'error handled';
-        });
+        $app->error(
+            function (Exception $e) {
+                return 'error handled';
+            }
+        );
 
         /*
          * Simulate 404, logged to error level
@@ -113,7 +119,7 @@ class MonologServiceProviderTest extends TestCase
          * Simulate unhandled exception, logged to critical
          */
         $app->get('/error', function () {
-            throw new \RuntimeException('very bad error');
+            throw new RuntimeException('very bad error');
         });
 
         $this->assertFalse($app['monolog.handler']->hasCriticalRecords());
@@ -146,15 +152,18 @@ class MonologServiceProviderTest extends TestCase
         $app = $this->getApplication();
         $app['monolog.level'] = Logger::ERROR;
 
-        $app->register(new \Silex\Provider\SecurityServiceProvider(), [
-            'security.firewalls' => [
-                'admin' => [
-                    'pattern' => '^/admin',
-                    'http' => true,
-                    'users' => [],
+        $app->register(
+            new SecurityServiceProvider(),
+            [
+                'security.firewalls' => [
+                    'admin' => [
+                        'pattern' => '^/admin',
+                        'http' => true,
+                        'users' => [],
+                    ],
                 ],
-            ],
-        ]);
+            ]
+        );
 
         $app->get('/admin', function () {
             return 'SECURE!';
@@ -175,7 +184,7 @@ class MonologServiceProviderTest extends TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Provided logging level 'foo' does not exist. Must be a valid monolog logging level.
      */
     public function testNonExistentStringErrorLevel()

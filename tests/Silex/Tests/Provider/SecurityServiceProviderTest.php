@@ -11,6 +11,7 @@
 
 namespace Silex\Tests\Provider;
 
+use LogicException;
 use Silex\Application;
 use Silex\WebTestCase;
 use Silex\Provider\SecurityServiceProvider;
@@ -18,7 +19,7 @@ use Silex\Provider\SessionServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\HttpKernel\Client;
+use Symfony\Component\HttpKernel\HttpKernelBrowser as Client;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -28,11 +29,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class SecurityServiceProviderTest extends WebTestCase
 {
-    /**
-     * @expectedException \LogicException
-     */
     public function testWrongAuthenticationType()
     {
+        $this->expectException(LogicException::class);
         $app = new Application();
         $app->register(new SecurityServiceProvider(), [
             'security.firewalls' => [
@@ -222,7 +221,7 @@ class SecurityServiceProviderTest extends WebTestCase
             ],
         ]);
         $app->match('/', function () { return 'foo'; })
-        ->method('POST|GET');
+            ->method('POST|GET');
 
         $request = Request::create('/', 'GET');
         $response = $app->handle($request);
@@ -246,10 +245,10 @@ class SecurityServiceProviderTest extends WebTestCase
             ],
         ]);
         $app->get('/', function () { return 'foo'; })
-        ->host('localhost2');
+            ->host('localhost2');
 
         $app->get('/', function () { return 'foo'; })
-        ->host('localhost1');
+            ->host('localhost1');
 
         $request = Request::create('http://localhost2/');
         $response = $app->handle($request);

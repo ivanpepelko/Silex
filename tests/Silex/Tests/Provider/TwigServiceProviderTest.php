@@ -11,7 +11,8 @@
 
 namespace Silex\Tests\Provider;
 
-use Fig\Link\Link;
+use DateTimeZone;
+use Symfony\Component\WebLink\Link;
 use PHPUnit\Framework\TestCase;
 use Silex\Application;
 use Silex\Provider\CsrfServiceProvider;
@@ -19,6 +20,11 @@ use Silex\Provider\FormServiceProvider;
 use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\AssetServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
+use Twig\Environment;
+use Twig\Extension\CoreExtension;
+use Twig\Loader\LoaderInterface;
+use Symfony\Component\Form\FormRenderer;
+use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 
 /**
  * TwigProvider test cases.
@@ -47,11 +53,14 @@ class TwigServiceProviderTest extends TestCase
     public function testLoaderPriority()
     {
         $app = new Application();
-        $app->register(new TwigServiceProvider(), [
-            'twig.templates' => ['foo' => 'foo'],
-        ]);
-        $loader = $this->getMockBuilder('\Twig_LoaderInterface')->getMock();
-        if (method_exists('\Twig_LoaderInterface', 'getSourceContext')) {
+        $app->register(
+            new TwigServiceProvider(),
+            [
+                'twig.templates' => ['foo' => 'foo'],
+            ]
+        );
+        $loader = $this->getMockBuilder(LoaderInterface::class)->getMock();
+        if (method_exists(LoaderInterface::class, 'getSourceContext')) {
             $loader->expects($this->never())->method('getSourceContext');
         }
         $app['twig.loader.filesystem'] = function ($app) use ($loader) {
@@ -107,9 +116,9 @@ class TwigServiceProviderTest extends TestCase
         $app->register(new CsrfServiceProvider());
         $app->register(new TwigServiceProvider());
 
-        $this->assertInstanceOf('Twig_Environment', $app['twig']);
-        $this->assertInstanceOf('Symfony\Bridge\Twig\Form\TwigRendererEngine', $app['twig.form.engine']);
-        $this->assertInstanceOf('Symfony\Component\Form\FormRenderer', $app['twig.form.renderer']);
+        $this->assertInstanceOf(Environment::class, $app['twig']);
+        $this->assertInstanceOf(TwigRendererEngine::class, $app['twig.form.engine']);
+        $this->assertInstanceOf(FormRenderer::class, $app['twig.form.renderer']);
     }
 
     public function testFormWithoutCsrf()
@@ -118,14 +127,14 @@ class TwigServiceProviderTest extends TestCase
         $app->register(new FormServiceProvider());
         $app->register(new TwigServiceProvider());
 
-        $this->assertInstanceOf('Twig_Environment', $app['twig']);
+        $this->assertInstanceOf(Environment::class, $app['twig']);
     }
 
     public function testFormatParameters()
     {
         $app = new Application();
 
-        $timezone = new \DateTimeZone('Europe/Paris');
+        $timezone = new DateTimeZone('Europe/Paris');
 
         $app->register(new TwigServiceProvider(), [
             'twig.date.format' => 'Y-m-d',
@@ -134,13 +143,14 @@ class TwigServiceProviderTest extends TestCase
             'twig.number_format.decimals' => 2,
             'twig.number_format.decimal_point' => ',',
             'twig.number_format.thousands_separator' => ' ',
-        ]);
+        ]
+        );
 
         $twig = $app['twig'];
 
-        $this->assertSame(['Y-m-d', '%h hours'], $twig->getExtension('Twig_Extension_Core')->getDateFormat());
-        $this->assertSame($timezone, $twig->getExtension('Twig_Extension_Core')->getTimezone());
-        $this->assertSame([2, ',', ' '], $twig->getExtension('Twig_Extension_Core')->getNumberFormat());
+        $this->assertSame(['Y-m-d', '%h hours'], $twig->getExtension(CoreExtension::class)->getDateFormat());
+        $this->assertSame($timezone, $twig->getExtension(CoreExtension::class)->getTimezone());
+        $this->assertSame([2, ',', ' '], $twig->getExtension(CoreExtension::class)->getNumberFormat());
     }
 
     public function testWebLinkIntegration()

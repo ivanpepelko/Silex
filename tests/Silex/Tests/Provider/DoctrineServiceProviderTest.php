@@ -11,6 +11,9 @@
 
 namespace Silex\Tests\Provider;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\PDO\SQLite\Driver as SQLiteDriver;
+use PDO;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 use Silex\Application;
@@ -33,28 +36,31 @@ class DoctrineServiceProviderTest extends TestCase
 
     public function testSingleConnection()
     {
-        if (!in_array('sqlite', \PDO::getAvailableDrivers())) {
+        if (!in_array('sqlite', PDO::getAvailableDrivers())) {
             $this->markTestSkipped('pdo_sqlite is not available');
         }
 
         $app = new Application();
-        $app->register(new DoctrineServiceProvider(), [
-            'db.options' => ['driver' => 'pdo_sqlite', 'memory' => true],
-        ]);
+        $app->register(
+            new DoctrineServiceProvider(),
+            [
+                'db.options' => ['driver' => 'pdo_sqlite', 'memory' => true],
+            ]
+        );
 
         $db = $app['db'];
         $params = $db->getParams();
         $this->assertArrayHasKey('memory', $params);
         $this->assertTrue($params['memory']);
-        $this->assertInstanceof('Doctrine\DBAL\Driver\PDOSqlite\Driver', $db->getDriver());
-        $this->assertEquals(22, $app['db']->fetchColumn('SELECT 22'));
+        $this->assertInstanceof(SQLiteDriver::class, $db->getDriver());
+        $this->assertEquals(22, $app['db']->fetchOne('SELECT 22'));
 
         $this->assertSame($app['dbs']['default'], $db);
     }
 
     public function testMultipleConnections()
     {
-        if (!in_array('sqlite', \PDO::getAvailableDrivers())) {
+        if (!in_array('sqlite', PDO::getAvailableDrivers())) {
             $this->markTestSkipped('pdo_sqlite is not available');
         }
 
@@ -62,56 +68,63 @@ class DoctrineServiceProviderTest extends TestCase
         $app->register(new DoctrineServiceProvider(), [
             'dbs.options' => [
                 'sqlite1' => ['driver' => 'pdo_sqlite', 'memory' => true],
-                'sqlite2' => ['driver' => 'pdo_sqlite', 'path' => sys_get_temp_dir().'/silex'],
+                'sqlite2' => ['driver' => 'pdo_sqlite', 'path' => sys_get_temp_dir() . '/silex'],
             ],
-        ]);
+        ]
+        );
 
         $db = $app['db'];
         $params = $db->getParams();
         $this->assertArrayHasKey('memory', $params);
         $this->assertTrue($params['memory']);
-        $this->assertInstanceof('Doctrine\DBAL\Driver\PDOSqlite\Driver', $db->getDriver());
-        $this->assertEquals(22, $app['db']->fetchColumn('SELECT 22'));
+        $this->assertInstanceof(SQLiteDriver::class, $db->getDriver());
+        $this->assertEquals(22, $app['db']->fetchOne('SELECT 22'));
 
         $this->assertSame($app['dbs']['sqlite1'], $db);
 
         $db2 = $app['dbs']['sqlite2'];
         $params = $db2->getParams();
         $this->assertArrayHasKey('path', $params);
-        $this->assertEquals(sys_get_temp_dir().'/silex', $params['path']);
+        $this->assertEquals(sys_get_temp_dir() . '/silex', $params['path']);
     }
 
     public function testLoggerLoading()
     {
-        if (!in_array('sqlite', \PDO::getAvailableDrivers())) {
+        if (!in_array('sqlite', PDO::getAvailableDrivers())) {
             $this->markTestSkipped('pdo_sqlite is not available');
         }
 
         $app = new Application();
         $this->assertArrayHasKey('logger', $app);
         $this->assertNull($app['logger']);
-        $app->register(new DoctrineServiceProvider(), [
-            'dbs.options' => [
-                'sqlite1' => ['driver' => 'pdo_sqlite', 'memory' => true],
-            ],
-        ]);
-        $this->assertEquals(22, $app['db']->fetchColumn('SELECT 22'));
+        $app->register(
+            new DoctrineServiceProvider(),
+            [
+                'dbs.options' => [
+                    'sqlite1' => ['driver' => 'pdo_sqlite', 'memory' => true],
+                ],
+            ]
+        );
+        $this->assertEquals(22, $app['db']->fetchOne('SELECT 22'));
         $this->assertNull($app['db']->getConfiguration()->getSQLLogger());
     }
 
     public function testLoggerNotLoaded()
     {
-        if (!in_array('sqlite', \PDO::getAvailableDrivers())) {
+        if (!in_array('sqlite', PDO::getAvailableDrivers())) {
             $this->markTestSkipped('pdo_sqlite is not available');
         }
 
         $app = new Container();
-        $app->register(new DoctrineServiceProvider(), [
-            'dbs.options' => [
-                'sqlite1' => ['driver' => 'pdo_sqlite', 'memory' => true],
-            ],
-        ]);
-        $this->assertEquals(22, $app['db']->fetchColumn('SELECT 22'));
+        $app->register(
+            new DoctrineServiceProvider(),
+            [
+                'dbs.options' => [
+                    'sqlite1' => ['driver' => 'pdo_sqlite', 'memory' => true],
+                ],
+            ]
+        );
+        $this->assertEquals(22, $app['db']->fetchOne('SELECT 22'));
         $this->assertNull($app['db']->getConfiguration()->getSQLLogger());
     }
 }
