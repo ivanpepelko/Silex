@@ -318,11 +318,11 @@ class DummyFormType extends AbstractType
 
 class DummyFormTypeExtension extends AbstractTypeExtension
 {
-    public function getExtendedType()
+    public static function getExtendedTypes(): iterable
     {
-        return 'Symfony\Component\Form\Extension\Core\Type\FileType';
+        yield 'Symfony\Component\Form\Extension\Core\Type\FileType';
     }
-
+    
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefined(['image_path']);

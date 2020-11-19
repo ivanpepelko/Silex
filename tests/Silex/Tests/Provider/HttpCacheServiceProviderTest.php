@@ -29,7 +29,7 @@ class HttpCacheServiceProviderTest extends TestCase
         $app = new Application();
 
         $app->register(new HttpCacheServiceProvider(), [
-            'http_cache.cache_dir' => sys_get_temp_dir().'/silex_http_cache_'.uniqid(),
+            'http_cache.cache_dir' => sys_get_temp_dir().'/silex_http_cache_'.uniqid('', true),
         ]);
 
         $this->assertInstanceOf('Silex\Provider\HttpCache\HttpCache', $app['http_cache']);
@@ -63,7 +63,7 @@ class HttpCacheServiceProviderTest extends TestCase
         $app = new Application();
 
         $app->register(new HttpCacheServiceProvider(), [
-            'http_cache.cache_dir' => sys_get_temp_dir().'/silex_http_cache_'.uniqid(),
+            'http_cache.cache_dir' => sys_get_temp_dir().'/silex_http_cache_'.uniqid('', true),
         ]);
 
         $app['debug'] = true;
