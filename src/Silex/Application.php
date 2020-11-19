@@ -45,7 +45,7 @@ use Symfony\Component\HttpKernel\TerminableInterface;
  */
 class Application extends Container implements HttpKernelInterface, TerminableInterface, ContainerInterface
 {
-    const VERSION = '2.3.1-DEV';
+    const VERSION = '3.0.0-DEV';
 
     const EARLY_EVENT = 512;
     const LATE_EVENT = -512;
