@@ -94,7 +94,7 @@ class MiddlewareListener implements EventSubscriberInterface
         }
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             // this must be executed after the late events defined with before() (and their priority is -512)

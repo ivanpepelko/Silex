@@ -135,7 +135,7 @@ class SecurityServiceProviderTest extends WebTestCase
 
         $client->request('get', '/', [], [], ['HTTP_X_AUTH_TOKEN' => 'lili:not the secret']);
         self::assertEquals(403, $client->getResponse()->getStatusCode(), 'User not found');
-        self::assertEquals('{"message":"Username could not be found."}', $client->getResponse()->getContent());
+        self::assertEquals('{"message":"Invalid credentials."}', $client->getResponse()->getContent());
 
         $client->request('get', '/', [], [], ['HTTP_X_AUTH_TOKEN' => 'victoria:not the secret']);
         self::assertEquals(403, $client->getResponse()->getStatusCode(), 'Invalid credentials');

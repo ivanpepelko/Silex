@@ -35,6 +35,8 @@ class ValidatorServiceProviderTest extends TestCase
         $app->register(new ValidatorServiceProvider());
         $app->register(new FormServiceProvider());
 
+        $this->assertArrayHasKey('validator', $app);
+
         return $app;
     }
 
@@ -51,6 +53,8 @@ class ValidatorServiceProviderTest extends TestCase
                 'test.custom.validator' => 'custom.validator',
             ],
         ]);
+
+        $this->assertArrayHasKey('validator.validator_service_ids', $app);
 
         return $app;
     }
